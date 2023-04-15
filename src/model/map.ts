@@ -21,6 +21,7 @@ export type Area = {
 }
 
 export type Point = {
+    id: number,
     name: string,
     description: string,
     x: number, 

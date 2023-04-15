@@ -22,6 +22,7 @@ const defaultMap: MapModel = {
   ],
   points: [
     {
+      id: 0,
       name: 'Waterdeep',
       description: 'The city of splendor!',
       x: 50,
@@ -46,7 +47,7 @@ export default function Home() {
 
       <main className={styles.main}>
         <Sidebar />
-        <Map map={defaultMap} visibleLayers={visibleLayers} />
+        <Map map={map} onMapUpdate={setMap} />
         <Logo />
       </main>
     </>
