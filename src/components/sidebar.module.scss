@@ -1,0 +1,19 @@
+.sidebar {
+    z-index: 1;
+    width: 200px;
+    height: 100%;
+    box-shadow: 0 0 10px 10px black;
+    background-color: #433;
+    display: flex;
+    justify-content: center;
+
+    .title {
+        height: 50px;
+        display: flex;
+        align-items: center;
+
+        font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+        font-size: 1.5em;
+        letter-spacing: 0.03em;
+    }
+}
