@@ -1,8 +1,10 @@
-import { FC, MouseEvent, useRef } from "react"
-import { MapModel } from "@/model/map"
+import { FC, useState } from "react"
+import { MapModel, Point } from "@/model/map"
 
 import styles from './map.module.scss'
 import { TransformWrapper, TransformComponent, KeepScale } from "react-zoom-pan-pinch";
+import ClickableImg from "./clickableImg";
+import PinCreator from "./pinCreator";
 
 type PropType = {
     map: MapModel,
@@ -14,26 +16,15 @@ function isImageUrl(url: string) {
 }
 
 const Map: FC<PropType> = ({ map, onMapUpdate }) => {
-    const mapRef = useRef<HTMLButtonElement>(null)
+    const [pinForm, setPinForm] = useState<[number, number] | null>(null) // Coordinates of the pin to be created, or null if not currently creating a pin 
 
-    function onMapClick(e: MouseEvent) {
-        if (!mapRef.current) return
+    function onMapClick(x: number, y: number) {
+        setPinForm(pinForm ? null : [x, y])
+    }
 
-        // Calculate x and y as percentages
-        const hitBox = mapRef.current.getBoundingClientRect()
-        const x = 100 * (e.clientX - hitBox.left) / hitBox.width
-        const y = 100 * (e.clientY - hitBox.top) / hitBox.height
-
+    function onPinCreated(pin: Point) {
         const newMap: MapModel = JSON.parse(JSON.stringify(map))
-        newMap.points.push({
-            x, y,
-            id: Date.now(),
-            name: 'Waterdeep',
-            description: 'The city of splendor!',
-            layerIds: [0],
-        })
-        newMap.name = "ludwig idk"
-
+        newMap.points.push(pin)
         onMapUpdate(newMap)
     }
 
@@ -44,23 +35,21 @@ const Map: FC<PropType> = ({ map, onMapUpdate }) => {
                     {!isImageUrl(map.imageUrl) ? (
                         <div className={styles.default}>Import a map</div>
                     ) : (
-                        <button className={styles.map} onClick={onMapClick} ref={mapRef}>
-                                {/* Map image */}
-                                <img src={map.imageUrl} className={styles.mapImage} />
-                            
-                            {/* Pins */}
-                            <div className={styles.overlay}>
-                                { map.points.map(point => (
-                                    <div key={point.id} className={styles.pin} style={{ left: `${point.x}%`, top: `${point.y}%` }} >
-                                        <KeepScale>
-                                            <img
-                                                src="https://cdn.pixabay.com/photo/2019/09/12/13/40/house-4471626_960_720.png" 
-                                            />
-                                        </KeepScale>
-                                    </div>
-                                )) }
-                            </div>
-                        </button>
+                        <ClickableImg src={map.imageUrl} onClick={onMapClick}>
+                            { !pinForm ? null : (
+                                <PinCreator x={pinForm[0]} y={pinForm[1]} onPinCreated={onPinCreated} />
+                            )}
+
+                            { map.points.map(point => (
+                                <div key={point.id} className={styles.pin} style={{ left: `${point.x}%`, top: `${point.y}%` }} >
+                                    <KeepScale>
+                                        <img
+                                            src="https://cdn.pixabay.com/photo/2019/09/12/13/40/house-4471626_960_720.png" 
+                                        />
+                                    </KeepScale>
+                                </div>
+                            )) }
+                        </ClickableImg>
                     )}
                 </TransformComponent>
             </TransformWrapper>

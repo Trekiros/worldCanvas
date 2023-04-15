@@ -1,0 +1,43 @@
+.pinCreatorContainer {
+    height: 0;
+    width: 0;
+    position: absolute;
+
+    .pinCreator {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        transform: translate(-50%, -20px);
+        transform-origin: bottom left;
+        background: #000a;
+        color: white;
+        padding: 1em;
+        border-radius: 0.5em;
+        width: 200px;
+        pointer-events: initial;
+
+        animation-name: popup;
+        animation-duration: 200ms;
+        animation-fill-mode: forwards;
+        animation-timing-function: ease-in-out;
+        animation-iteration-count: 1;
+
+        @keyframes popup {
+            0% { opacity: 0; scale: 0 }
+            50% { opacity: 1 }
+            100% { scale: 1 }
+        }
+
+        &:after {
+            content: "";
+            width: 0;
+            border-top: 20px solid #000a;
+            border-left: 20px solid transparent;
+            border-right: 20px solid transparent;
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+    }
+}
