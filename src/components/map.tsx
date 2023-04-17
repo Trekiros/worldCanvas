@@ -1,5 +1,5 @@
-import { FC, ReactNode, createContext, useContext, useRef, useState } from "react"
-import { MapModel, MarkerModel } from "@/model/map"
+import { FC, useContext, useRef, useState } from "react"
+import { MapModel, MarkerModel, getLayer, getMarker } from "@/model/map"
 
 import styles from './map.module.scss'
 import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
@@ -10,19 +10,23 @@ import { MapContext, PopinContext, PopinDescription } from "@/model/context";
 import Popin from "./popin";
 import CreateMenu from "./createMenu";
 
-type PropType = {}
+type PropType = {
+    visibleLayers: number[],
+    activeLayer: number,
+}
 
 function isImageUrl(url: string) {
     return(url.match(/\.(jpeg|jpg|gif|png)$/) != null);
 }
 
-const Map: FC<PropType> = ({}) => {
+const Map: FC<PropType> = ({ visibleLayers, activeLayer }) => {
     const {map, setMap} = useContext(MapContext)
     const [popin, setPopin] = useState<PopinDescription>(null)
     const mapRef = useRef<HTMLDivElement>(null)
 
     function calculateMapCoords(clientX: number, clientY: number) {
         if (!mapRef.current) return {}
+
         // Calculate x and y as percentages
         const hitBox = mapRef.current.getBoundingClientRect()
         const x = 100 * (clientX - hitBox.left) / hitBox.width
@@ -49,32 +53,53 @@ const Map: FC<PropType> = ({}) => {
 
     function onMarkerCreated(marker: MarkerModel) {
         const newMap: MapModel = JSON.parse(JSON.stringify(map))
-        newMap.points.push(marker)
+        const layer = getLayer(newMap, activeLayer)
+        if (!layer) return
+
+        layer.markers.push(marker)
         setMap(newMap)
         setPopin(null)
     }
 
-    function onMarkerUpdated(index: number, marker: MarkerModel) {
+    function onMarkerUpdated(layerId: number, newValue: MarkerModel) {
         const newMap: MapModel = JSON.parse(JSON.stringify(map))
-        newMap.points[index] = marker
+        const marker = getMarker(newMap, layerId, newValue.id)
+        if (!marker) return
+
+        marker.name = newValue.name
+        marker.description = newValue.description
+        marker.iconUrl = newValue.iconUrl
+        marker.x = newValue.x
+        marker.y = newValue.y
+
         setMap(newMap)
         setPopin(null)
     }
 
-    function onMarkerMoved(index: number, clientX: number, clientY: number) {
+    function onMarkerMoved(layerId: number, markerId: number, clientX: number, clientY: number) {
         const {x, y} = calculateMapCoords(clientX, clientY)
         if (!x || !y) return
-        
-        const newMap: MapModel = JSON.parse(JSON.stringify(map))
-        const marker = newMap.points[index]
+
+        const newMap: MapModel = JSON.parse(JSON.stringify(map))        
+        const marker = getMarker(newMap, layerId, markerId)
+        if (!marker) return
+
         marker.x = x
         marker.y = y
+
         setMap(newMap)
     }
 
-    function deleteMarker(index: number) {
+    function deleteMarker(layerId: number, markerId: number) {
         const newMap: MapModel = JSON.parse(JSON.stringify(map))
-        newMap.points.splice(index, 1)
+        const layer = getLayer(newMap, layerId)
+        if (!layer) return
+
+        const markerIndex = layer.markers.findIndex(marker => (marker.id === markerId))
+        if (markerIndex === -1) return
+
+        layer.markers.splice(markerIndex, 1)
+
         setMap(newMap)
         setPopin(null)
     }
@@ -90,15 +115,19 @@ const Map: FC<PropType> = ({}) => {
                             <div ref={mapRef}>
                                 <ClickableImg src={map.imageUrl} onClick={onMapClick}>
                                     <PopinContext.Provider value={{popin, setPopin}}>
-                                        { /* MARKERS */}
-                                        { map.points.map((marker, index) => (
-                                            <Marker
-                                                key={marker.id} 
-                                                marker={marker}
-                                                onMarkerUpdated={(newValue) => onMarkerUpdated(index, newValue)}
-                                                onMarkerMoved={(x, y) => onMarkerMoved(index, x, y)}
-                                                onMarkerDeleted={() => deleteMarker(index)}
-                                            />
+                                        { map.layers.map(layer => (
+                                            <div key={layer.id} className={styles.layer}>
+                                                { /* MARKERS */}
+                                                { layer.markers.map((marker, index) => (
+                                                    <Marker
+                                                        key={marker.id} 
+                                                        marker={marker}
+                                                        onMarkerUpdated={(newValue) => onMarkerUpdated(layer.id, newValue)}
+                                                        onMarkerMoved={(x, y) => onMarkerMoved(layer.id, marker.id, x, y)}
+                                                        onMarkerDeleted={() => deleteMarker(layer.id, marker.id)}
+                                                    />
+                                                )) }                                            
+                                            </div>
                                         )) }
 
                                         { !popin ? null : (

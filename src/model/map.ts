@@ -3,28 +3,56 @@ import { Color } from "./utils"
 export type MapModel = {
     name: string,
     imageUrl: string,
-    layers: Layer[]
-    points: MarkerModel[],
+    layers: LayerModel[],
 }
 
-export type Layer = {
+export type LayerModel = {
     id: number,
     name: string,
     iconUrl: string,
-    areas: Area[],
-}
-
-export type Area = {
-    name: string,
     color: Color,
-    points: MarkerModel[],
+    
+    markers: MarkerModel[],
+    paths: PathModel[],
+    areas: AreaModel[],
 }
 
 export type MarkerModel = {
     id: number,
     name: string,
     description: string,
-    x: number, 
-    y: number,
-    layerIds: number[],
+    x: number, y: number,
+    iconUrl?: string, // Default: layer.iconUrl
+}
+
+export type PathModel = {
+    id: number,
+    layerId: number,
+    name: string,
+    points: {x: number, y: number}[],
+    color?: string, // Default: layer.color
+}
+
+export type AreaModel = {
+    id: number,
+    layerId: number,
+    name: string,
+    points: {x: number, y: number}[],
+    color?: Color, // Default: layer.color
+}
+
+export function getLayer(map: MapModel, layerId: number) {
+    return map.layers.find(layer => (layer.id === layerId))
+}
+
+export function getMarker(map: MapModel, layerId: number, markerId: number) {
+    return (getLayer(map, layerId)?.markers || []).find(marker => (marker.id === markerId))
+}
+
+export function getPath(map: MapModel, layerId: number, pathId: number) {
+    return (getLayer(map, layerId)?.paths || []).find(path => (path.id === pathId))
+}
+
+export function getArea(map: MapModel, layerId: number, areaId: number) {
+    return (getLayer(map, layerId)?.areas || []).find(area => (area.id === areaId))
 }

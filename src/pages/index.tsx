@@ -12,6 +12,8 @@ import { MapContext, defaultMap } from '@/model/context'
 
 export default function Home() {
   const [map, setMap] = useState(defaultMap)
+  const [visibleLayers, setVisibleLayers] = useState([0])
+  const [activeLayer, setActiveLayer] = useState(0)
 
   return (
     <>
@@ -25,7 +27,7 @@ export default function Home() {
       <main className={styles.main}>
         <MapContext.Provider value={{map, setMap}}>
           <Sidebar />
-          <Map/>
+          <Map visibleLayers={visibleLayers} activeLayer={activeLayer}/>
         </MapContext.Provider>
         <Logo />
       </main>

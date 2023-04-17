@@ -1,7 +1,7 @@
 import { FC, useState } from "react";
 import { MarkerModel } from "@/model/map";
-import { faTrash, faCheck } from "@fortawesome/free-solid-svg-icons";
 import styles from './markerMenu.module.scss'
+import { faTrash, faCheck, faUpDownLeftRight } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 type PropType = {
@@ -9,10 +9,11 @@ type PropType = {
     y: number,
     onMarkerCreated: (newMarker: MarkerModel) => void,
     initialValue?: MarkerModel,
+    onMoveMarker?: () => void,
     onMarkerDeleted?: () => void,
 }
 
-const MarkerMenu: FC<PropType> = ({x, y, onMarkerCreated, initialValue, onMarkerDeleted}) => {
+const MarkerMenu: FC<PropType> = ({x, y, onMarkerCreated, initialValue, onMoveMarker, onMarkerDeleted}) => {
     const [marker, setMarker] = useState<MarkerModel>(initialValue || {x, y} as any)
 
     function update(mutate: (clone: MarkerModel) => void) {
@@ -54,6 +55,10 @@ const MarkerMenu: FC<PropType> = ({x, y, onMarkerCreated, initialValue, onMarker
                 { onMarkerDeleted ? <button onClick={onMarkerDeleted}>
                     <FontAwesomeIcon icon={faTrash} />
                     Delete
+                </button> : null }
+                { onMoveMarker ? <button onClick={onMoveMarker}>
+                    <FontAwesomeIcon icon={faUpDownLeftRight} />
+                    Move
                 </button> : null }
             </div>
         </div>

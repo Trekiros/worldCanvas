@@ -1,6 +1,5 @@
 import { FC, MouseEvent, ReactNode, RefObject, useContext, useRef, useState } from "react"
 import styles from './clickableImg.module.scss'
-import { PopinContext } from "@/model/context"
 
 type PropType = {
     src: string,                                    // Image url
@@ -9,8 +8,6 @@ type PropType = {
 }
 
 const ClickableImg: FC<PropType> = ({src, onClick, children}) => {
-    const {popin, setPopin} = useContext(PopinContext)
-
     // Using this instead of onClick to avoid catching pan moves accidentally
     // TODO: fallback for mobile
     const [clicking, setClicking] = useState(false)
@@ -26,19 +23,21 @@ const ClickableImg: FC<PropType> = ({src, onClick, children}) => {
     }
 
     return (
-        <button
-            onMouseDown={onMouseDown}
-            onMouseUp={onMouseUp}
-            onMouseMove={onMouseMove}
-            className={styles.clickableImg}
-        >
-            <img src={src} className={styles.image} />
+        <div className={styles.clickableImg}>
+            <button
+                onMouseDown={onMouseDown}
+                onMouseUp={onMouseUp}
+                onMouseMove={onMouseMove}
+                className={styles.imageBtn}
+            >
+                <img src={src} className={styles.image} />
+            </button>
             <div className={styles.overlay}>
                 <div onMouseDown={(e) => e.stopPropagation()}>
                     {children}
                 </div>
             </div>
-        </button>
+        </div>
     )
 }
 

@@ -9,17 +9,17 @@ export const defaultMap: MapModel = {
         id: 0,
         name: "Towns",
         iconUrl: "https://cdn.pixabay.com/photo/2019/09/12/13/40/house-4471626_960_720.png",
+        color: '#fff1',
+        markers: [
+            {
+                id: 0,
+                name: 'Waterdeep',
+                description: 'The city of splendor!',
+                x: 50, y: 50,
+            },
+        ],
+        paths: [],
         areas: [],
-      },
-    ],
-    points: [
-      {
-        id: 0,
-        name: 'Waterdeep',
-        description: 'The city of splendor!',
-        x: 50,
-        y: 50,
-        layerIds: [0],
       },
     ],
   }

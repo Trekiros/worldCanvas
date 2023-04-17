@@ -5,6 +5,9 @@
     .icon {
         width: 30px;
         pointer-events: initial;
+
+        transition: scale 0.2s;
+        &:hover { scale: 1.2; }
     }
 }
 

@@ -1,4 +1,6 @@
 import { FC } from "react"
+import { faLocationDot, faArrowTrendUp, faDrawPolygon } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import styles from './createMenu.module.scss'
 
 type PropType = {
@@ -10,9 +12,9 @@ type PropType = {
 const CreateMenu: FC<PropType> = ({onNewMarker, onNewPath, onNewArea}) => {
     return (
         <div className={styles.menu}>
-            <button onClick={onNewMarker}><img src="/pin.svg" /> Marker </button>
-            <button onClick={onNewPath}><img src="/pin.svg" /> Path </button>
-            <button onClick={onNewArea}><img src="/pin.svg" /> Area </button>
+            <button onClick={onNewMarker}><FontAwesomeIcon icon={faLocationDot} /> Marker </button>
+            <button onClick={onNewPath}><FontAwesomeIcon icon={faArrowTrendUp} /> Path </button>
+            <button onClick={onNewArea}><FontAwesomeIcon icon={faDrawPolygon} /> Area </button>
         </div>
     )
 }
