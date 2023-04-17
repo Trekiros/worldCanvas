@@ -1,5 +1,6 @@
-import { FC, MouseEvent, ReactNode, useRef, useState } from "react"
+import { FC, MouseEvent, ReactNode, RefObject, useContext, useRef, useState } from "react"
 import styles from './clickableImg.module.scss'
+import { PopinContext } from "@/model/context"
 
 type PropType = {
     src: string,                                    // Image url
@@ -8,7 +9,7 @@ type PropType = {
 }
 
 const ClickableImg: FC<PropType> = ({src, onClick, children}) => {
-    const btnRef = useRef<HTMLButtonElement>(null)
+    const {popin, setPopin} = useContext(PopinContext)
 
     // Using this instead of onClick to avoid catching pan moves accidentally
     // TODO: fallback for mobile
@@ -18,31 +19,24 @@ const ClickableImg: FC<PropType> = ({src, onClick, children}) => {
     function onMouseMove() { setClicking(false) }
     function onMouseUp(e: MouseEvent) {
         if (!clicking) return
-        
         setClicking(false)
 
-        if (!onClick || !btnRef.current) return
-
-        // Calculate x and y as percentages
-        const hitBox = btnRef.current.getBoundingClientRect()
-        const x = 100 * (e.clientX - hitBox.left) / hitBox.width
-        const y = 100 * (e.clientY - hitBox.top) / hitBox.height
-
-        onClick(x, y)        
+        if (!onClick) return
+        onClick(e.clientX, e.clientY)
     }
-
 
     return (
         <button
             onMouseDown={onMouseDown}
             onMouseUp={onMouseUp}
             onMouseMove={onMouseMove}
-            ref={btnRef}
             className={styles.clickableImg}
         >
             <img src={src} className={styles.image} />
             <div className={styles.overlay}>
-                {children}
+                <div onMouseDown={(e) => e.stopPropagation()}>
+                    {children}
+                </div>
             </div>
         </button>
     )

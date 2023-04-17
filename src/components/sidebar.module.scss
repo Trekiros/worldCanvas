@@ -1,6 +1,8 @@
+@import '/src/styles/variables.scss';
+
 .sidebar {
     z-index: 1;
-    width: 200px;
+    width: $sidebar-size;
     height: 100%;
     box-shadow: 0 0 10px 10px black;
     background-color: #433;

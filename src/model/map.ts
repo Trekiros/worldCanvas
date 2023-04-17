@@ -4,7 +4,7 @@ export type MapModel = {
     name: string,
     imageUrl: string,
     layers: Layer[]
-    points: Point[],
+    points: MarkerModel[],
 }
 
 export type Layer = {
@@ -17,10 +17,10 @@ export type Layer = {
 export type Area = {
     name: string,
     color: Color,
-    points: Point[],
+    points: MarkerModel[],
 }
 
-export type Point = {
+export type MarkerModel = {
     id: number,
     name: string,
     description: string,

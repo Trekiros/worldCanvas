@@ -1,0 +1,40 @@
+.markerMenu {
+    width: 250px;
+    display: flex;
+    flex-direction: column;
+
+    input, textarea {
+        background: #fff1;
+        border: none;
+        border-radius: 4px;
+        color: #eee;
+        resize: none;
+        margin: 4px;
+        padding: 8px;
+    }
+
+    input { font-size: 22pt; }
+    textarea {
+        height: 80px;
+
+        &::-webkit-scrollbar { width: 12px; }
+        &::-webkit-scrollbar-track { background: #fff1 }
+        &::-webkit-scrollbar-thumb { background: #888 }
+    }
+
+    .buttons {
+        display: flex;
+        
+        button {
+            flex: 1 1 0;
+            padding: 1em 2em;
+
+            svg { width: 16px; margin-right: 0.5em }
+
+            &:disabled {
+                background-color: #fff0!important;
+                color: #aaa;
+            }
+        }
+    }
+}

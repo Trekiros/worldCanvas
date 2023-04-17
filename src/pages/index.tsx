@@ -8,33 +8,10 @@ import Map from '@/components/map'
 
 import { MapModel } from '@/model/map'
 import { usePersistentState } from '@/model/state'
-
-const defaultMap: MapModel = {
-  name: "Faerun",
-  imageUrl: "http://media.wizards.com/2015/images/dnd/resources/Sword-Coast-Map_LowRes.jpg",
-  layers: [
-    {
-      id: 0,
-      name: "Towns",
-      iconUrl: "https://cdn.pixabay.com/photo/2019/09/12/13/40/house-4471626_960_720.png",
-      areas: [],
-    },
-  ],
-  points: [
-    {
-      id: 0,
-      name: 'Waterdeep',
-      description: 'The city of splendor!',
-      x: 50,
-      y: 50,
-      layerIds: [0],
-    },
-  ],
-}
+import { MapContext, defaultMap } from '@/model/context'
 
 export default function Home() {
-  const [map, setMap] = usePersistentState('map', defaultMap)
-  const [visibleLayers, setVisibleLayers] = useState<number[]>([0])
+  const [map, setMap] = useState(defaultMap)
 
   return (
     <>
@@ -46,8 +23,10 @@ export default function Home() {
       </Head>
 
       <main className={styles.main}>
-        <Sidebar />
-        <Map map={map} onMapUpdate={setMap} />
+        <MapContext.Provider value={{map, setMap}}>
+          <Sidebar />
+          <Map/>
+        </MapContext.Provider>
         <Logo />
       </main>
     </>
