@@ -40,6 +40,10 @@
             transform: translateX(-50%);
         }
 
+        &.yOffset {
+            margin-bottom: 16px;
+        }
+
         button {
             background-color: #fff1;
             border: none;

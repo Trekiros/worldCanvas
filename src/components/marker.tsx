@@ -27,6 +27,7 @@ const Marker: FC<PropType> = ({marker, onMarkerUpdated, onMarkerMoved, onMarkerD
             id: Date.now(),
             x: marker.x,
             y: marker.y,
+            yOffset: true,
             content: (
                 <MarkerMenu
                     x={marker.x}
@@ -47,6 +48,7 @@ const Marker: FC<PropType> = ({marker, onMarkerUpdated, onMarkerMoved, onMarkerD
             id: marker.id,
             x: marker.x,
             y: marker.y,
+            yOffset: true,
             content: (
                 <div className={styles.markerInfo}>
                     <h3>{marker.name}</h3>

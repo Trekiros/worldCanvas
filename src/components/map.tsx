@@ -22,6 +22,7 @@ function isImageUrl(url: string) {
 const Map: FC<PropType> = ({ visibleLayers, activeLayer }) => {
     const {map, setMap} = useContext(MapContext)
     const [popin, setPopin] = useState<PopinDescription>(null)
+    const [alertMessage, setAlert] = useState('')
     const mapRef = useRef<HTMLDivElement>(null)
 
     function calculateMapCoords(clientX: number, clientY: number) {
@@ -104,9 +105,14 @@ const Map: FC<PropType> = ({ visibleLayers, activeLayer }) => {
         setPopin(null)
     }
 
+    function onZoom(scale: number) {
+        const zoom = Math.trunc(scale * 100)
+        setAlert(`Zoom: ${zoom}%`)
+    }
+
     return (
         <div className={styles.mapContainer}>
-            <TransformWrapper centerOnInit={true} minScale={0.2} doubleClick={{disabled: true}}>
+            <TransformWrapper centerOnInit={true} minScale={0.2} doubleClick={{disabled: true}} onZoomStop={(e) => onZoom(e.state.scale)}>
                 <TransformComponent>
                     <PopinContext.Provider value={{popin, setPopin}}>
                         {!isImageUrl(map.imageUrl) ? (
@@ -131,7 +137,7 @@ const Map: FC<PropType> = ({ visibleLayers, activeLayer }) => {
                                         )) }
 
                                         { !popin ? null : (
-                                            <Popin x={popin.x} y={popin.y} key={popin.id}>
+                                            <Popin x={popin.x} y={popin.y} key={popin.id} yOffset={popin.yOffset}>
                                                 {popin.content}
                                             </Popin>
                                         )}
@@ -142,6 +148,8 @@ const Map: FC<PropType> = ({ visibleLayers, activeLayer }) => {
                     </PopinContext.Provider>
                 </TransformComponent>
             </TransformWrapper>
+
+            { !alertMessage ? null : <div className={styles.alert} key={alertMessage}>{alertMessage}</div> }
         </div>
     )
 }

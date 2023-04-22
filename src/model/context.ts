@@ -31,5 +31,6 @@ export type PopinDescription = {
     x: number,
     y: number, 
     content: ReactNode,
+    yOffset?: boolean,
 } | null
 export const PopinContext = createContext({popin: null as PopinDescription, setPopin: (newValue: PopinDescription) => {}})

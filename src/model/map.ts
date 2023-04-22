@@ -9,6 +9,20 @@ export type MapModel = {
 export type LayerModel = {
     id: number,
     name: string,
+
+    // Properties
+    imageUrl?: string, // Does the layer include a map variant?
+    fogOfWar?: boolean, // TODO
+
+    // Permissions
+    visible?: boolean,
+    playerPermissions?: 'see' | 'edit',
+
+    // Min/Max zoom after which elements on this layer become visible.
+    minZoom?: number,
+    maxZoom?: number,
+
+    // Defaults for all markers/areas of this layer
     iconUrl: string,
     color: Color,
     
