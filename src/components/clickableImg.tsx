@@ -1,4 +1,4 @@
-import { FC, MouseEvent, ReactNode, RefObject, useContext, useRef, useState } from "react"
+import { FC, MouseEvent, ReactNode, useState } from "react"
 import styles from './clickableImg.module.scss'
 
 type PropType = {

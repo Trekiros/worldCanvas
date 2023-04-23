@@ -28,8 +28,13 @@
         button {
             flex: 1 1 0;
             padding: 1em 2em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            &:only-child { flex-direction: row;}
 
-            svg { width: 16px; margin-right: 0.5em }
+            svg { width: 22px; margin: 8px; }
 
             &:disabled {
                 background-color: #fff0!important;

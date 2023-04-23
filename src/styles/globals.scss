@@ -1,3 +1,5 @@
+@import '../../node_modules/rc-slider/assets/index.css';
+
 * {
   box-sizing: border-box;
 }
@@ -6,6 +8,34 @@ html, body {
   margin: 0;
   padding: 0;
   
-  background-color: #433;
-  color: #ffa
+  background-color: #322;
+  color: #ffa;
+
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.rc-slider {
+  margin: 1em 0;
+
+  .rc-slider-rail, .rc-slider-dot {
+    background-color: #222;
+    border-color: #222;
+  }
+  
+  .rc-slider-track {
+    background-color: #855;
+  }
+
+  .rc-slider-handle {
+    border-color: #855!important;
+    background: #a88;
+    
+    &.rc-slider-handle-dragging {
+      box-shadow: 0 0 0 5px #a88!important;
+    }
+  }
+
+  .rc-slider-mark-text, .rc-slider-mark-text-active {
+    color: white;
+  } 
 }

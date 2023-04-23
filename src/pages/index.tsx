@@ -26,7 +26,7 @@ export default function Home() {
 
       <main className={styles.main}>
         <MapContext.Provider value={{map, setMap}}>
-          <Sidebar />
+          <Sidebar activeLayer={activeLayer} setActiveLayer={(id) => setActiveLayer(id)} />
           <Map visibleLayers={visibleLayers} activeLayer={activeLayer}/>
         </MapContext.Provider>
         <Logo />

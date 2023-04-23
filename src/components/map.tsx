@@ -1,14 +1,14 @@
 import { FC, useContext, useRef, useState } from "react"
-import { MapModel, MarkerModel, getLayer, getMarker } from "@/model/map"
+import { LayerModel, MapModel, MarkerModel, getLayer, getMarker } from "@/model/map"
 
 import styles from './map.module.scss'
 import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 import ClickableImg from "./clickableImg";
 import MarkerMenu from "./markerMenu";
-import Marker from "./marker";
 import { MapContext, PopinContext, PopinDescription } from "@/model/context";
 import Popin from "./popin";
 import CreateMenu from "./createMenu";
+import Layer from "./layer";
 
 type PropType = {
     visibleLayers: number[],
@@ -22,11 +22,11 @@ function isImageUrl(url: string) {
 const Map: FC<PropType> = ({ visibleLayers, activeLayer }) => {
     const {map, setMap} = useContext(MapContext)
     const [popin, setPopin] = useState<PopinDescription>(null)
-    const [alertMessage, setAlert] = useState('')
+    const [zoom, setZoom] = useState(100)
     const mapRef = useRef<HTMLDivElement>(null)
 
     function calculateMapCoords(clientX: number, clientY: number) {
-        if (!mapRef.current) return {}
+        if (!mapRef.current) throw new Error('map not initialized yet')
 
         // Calculate x and y as percentages
         const hitBox = mapRef.current.getBoundingClientRect()
@@ -62,94 +62,47 @@ const Map: FC<PropType> = ({ visibleLayers, activeLayer }) => {
         setPopin(null)
     }
 
-    function onMarkerUpdated(layerId: number, newValue: MarkerModel) {
-        const newMap: MapModel = JSON.parse(JSON.stringify(map))
-        const marker = getMarker(newMap, layerId, newValue.id)
-        if (!marker) return
+    function onLayerUpdated(newValue: LayerModel) {
+        const mapClone: MapModel = JSON.parse(JSON.stringify(map))
+        const layerIndex = mapClone.layers.findIndex(layer => (layer.id === newValue.id))
+        if (layerIndex === -1) return
 
-        marker.name = newValue.name
-        marker.description = newValue.description
-        marker.iconUrl = newValue.iconUrl
-        marker.x = newValue.x
-        marker.y = newValue.y
-
-        setMap(newMap)
-        setPopin(null)
-    }
-
-    function onMarkerMoved(layerId: number, markerId: number, clientX: number, clientY: number) {
-        const {x, y} = calculateMapCoords(clientX, clientY)
-        if (!x || !y) return
-
-        const newMap: MapModel = JSON.parse(JSON.stringify(map))        
-        const marker = getMarker(newMap, layerId, markerId)
-        if (!marker) return
-
-        marker.x = x
-        marker.y = y
-
-        setMap(newMap)
-    }
-
-    function deleteMarker(layerId: number, markerId: number) {
-        const newMap: MapModel = JSON.parse(JSON.stringify(map))
-        const layer = getLayer(newMap, layerId)
-        if (!layer) return
-
-        const markerIndex = layer.markers.findIndex(marker => (marker.id === markerId))
-        if (markerIndex === -1) return
-
-        layer.markers.splice(markerIndex, 1)
-
-        setMap(newMap)
-        setPopin(null)
+        mapClone.layers.splice(layerIndex, 1)
+        setMap(mapClone)
     }
 
     function onZoom(scale: number) {
-        const zoom = Math.trunc(scale * 100)
-        setAlert(`Zoom: ${zoom}%`)
+        const newZoom = Math.trunc(scale * 100)
+        setZoom(newZoom)
     }
 
     return (
         <div className={styles.mapContainer}>
             <TransformWrapper centerOnInit={true} minScale={0.2} doubleClick={{disabled: true}} onZoomStop={(e) => onZoom(e.state.scale)}>
                 <TransformComponent>
-                    <PopinContext.Provider value={{popin, setPopin}}>
-                        {!isImageUrl(map.imageUrl) ? (
-                            <div className={styles.default}>Import a map</div>
-                        ) : (
-                            <div ref={mapRef}>
-                                <ClickableImg src={map.imageUrl} onClick={onMapClick}>
-                                    <PopinContext.Provider value={{popin, setPopin}}>
-                                        { map.layers.map(layer => (
-                                            <div key={layer.id} className={styles.layer}>
-                                                { /* MARKERS */}
-                                                { layer.markers.map((marker, index) => (
-                                                    <Marker
-                                                        key={marker.id} 
-                                                        marker={marker}
-                                                        onMarkerUpdated={(newValue) => onMarkerUpdated(layer.id, newValue)}
-                                                        onMarkerMoved={(x, y) => onMarkerMoved(layer.id, marker.id, x, y)}
-                                                        onMarkerDeleted={() => deleteMarker(layer.id, marker.id)}
-                                                    />
-                                                )) }                                            
-                                            </div>
-                                        )) }
+                    {!isImageUrl(map.imageUrl) ? (
+                        <div className={styles.default}>Import a map</div>
+                    ) : (
+                        <div ref={mapRef}>
+                            <ClickableImg src={map.imageUrl} onClick={onMapClick}>
+                                <PopinContext.Provider value={{popin, setPopin, calculateMapCoords}}>
+                                    { map.layers.map(layer => (
+                                        <Layer key={layer.id} layer={layer} onUpdate={onLayerUpdated} currentZoom={zoom} />
+                                    )) }
 
-                                        { !popin ? null : (
-                                            <Popin x={popin.x} y={popin.y} key={popin.id} yOffset={popin.yOffset}>
-                                                {popin.content}
-                                            </Popin>
-                                        )}
-                                    </PopinContext.Provider>
-                                </ClickableImg>
-                            </div>
-                        )}
-                    </PopinContext.Provider>
+                                    { !popin ? null : (
+                                        <Popin x={popin.x} y={popin.y} key={popin.id} yOffset={popin.yOffset}>
+                                            {popin.content}
+                                        </Popin>
+                                    )}
+                                </PopinContext.Provider>
+                            </ClickableImg>
+                        </div>
+                    )}
                 </TransformComponent>
             </TransformWrapper>
 
-            { !alertMessage ? null : <div className={styles.alert} key={alertMessage}>{alertMessage}</div> }
+            <div className={styles.alert} key={zoom}>Zoom: {zoom}%</div>
         </div>
     )
 }

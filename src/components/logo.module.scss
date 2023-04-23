@@ -13,7 +13,6 @@
     --anim-duration: 2s;
 
     background-color: var(--bg);
-
     
     animation-timing-function: ease-in-out;
     animation-duration: var(--anim-duration);
@@ -214,9 +213,9 @@
         .playBtn {
             width: 0; 
             height: 0; 
-            border-top: 60px solid transparent;
-            border-bottom: 60px solid transparent;
-            border-left: 60px solid white;
+            border-top: 6vh solid transparent;
+            border-bottom: 6vh solid transparent;
+            border-left: 6vh solid white;
             transform: translate(-50%, -50%) scale(3, 1);
             position: absolute;
             top: 50%;

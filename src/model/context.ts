@@ -8,6 +8,7 @@ export const defaultMap: MapModel = {
       {
         id: 0,
         name: "Towns",
+        visible: true,
         iconUrl: "https://cdn.pixabay.com/photo/2019/09/12/13/40/house-4471626_960_720.png",
         color: '#fff1',
         markers: [
@@ -33,4 +34,8 @@ export type PopinDescription = {
     content: ReactNode,
     yOffset?: boolean,
 } | null
-export const PopinContext = createContext({popin: null as PopinDescription, setPopin: (newValue: PopinDescription) => {}})
+export const PopinContext = createContext({
+  popin: null as PopinDescription, 
+  setPopin: (newValue: PopinDescription) => {}, 
+  calculateMapCoords: (clientX: number, clientY: number) => ({x: 0, y: 0}),
+})

@@ -12,7 +12,6 @@ export type LayerModel = {
 
     // Properties
     imageUrl?: string, // Does the layer include a map variant?
-    fogOfWar?: boolean, // TODO
 
     // Permissions
     visible?: boolean,

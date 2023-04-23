@@ -1,13 +1,12 @@
 @import '/src/styles/variables.scss';
 
 .sidebar {
-    z-index: 1;
     width: $sidebar-size;
     height: 100%;
-    box-shadow: 0 0 10px 10px black;
     background-color: #433;
     display: flex;
-    justify-content: center;
+    flex-direction: column;
+    align-items: center;
 
     .title {
         height: 50px;
@@ -17,5 +16,60 @@
         font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
         font-size: 1.5em;
         letter-spacing: 0.03em;
+    }
+
+    .layersContainer {
+        width: 100%;
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+
+        .layers {
+            flex-grow: 1;
+            overflow-y: scroll;
+            
+            &::-webkit-scrollbar { width: 12px; }
+            &::-webkit-scrollbar-track { background: #fff1 }
+            &::-webkit-scrollbar-thumb { background: #888 }
+
+            .layerContainer {
+                width: 100%;
+                
+                .layer {
+                    width: 100%;
+                    display: flex;
+                    flex-direction: row;
+                    
+                    &>button {
+                        color: white;
+                        padding: 1em;
+                        background: none;
+                        border: none;
+                        display: flex;
+                        flex-direction: row;
+                        align-items: center;
+                        justify-content: center;
+                        transition: background-color 0.2s;
+        
+                        &:hover { background-color: #fff1 }
+
+                        svg, img { width: 22px; filter: brightness(10) }
+                    }
+    
+                    .layerLabel {
+                        flex-grow: 1;
+                        text-align: left;
+                        font-size: 12pt;
+                    }
+    
+                    .layerSettings { }
+                }
+            }
+
+        }
+
+        .addLayer {
+
+        }
     }
 }
