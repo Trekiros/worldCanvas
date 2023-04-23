@@ -67,7 +67,8 @@ const Map: FC<PropType> = ({ visibleLayers, activeLayer }) => {
         const layerIndex = mapClone.layers.findIndex(layer => (layer.id === newValue.id))
         if (layerIndex === -1) return
 
-        mapClone.layers.splice(layerIndex, 1)
+        mapClone.layers[layerIndex] = newValue
+
         setMap(mapClone)
     }
 

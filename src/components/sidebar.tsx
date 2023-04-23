@@ -2,7 +2,7 @@ import { FC, MouseEvent, useContext, useState } from "react"
 import styles from './sidebar.module.scss'
 import { MapContext } from "@/model/context"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { faCog, faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons"
+import { faChevronLeft, faChevronRight, faCog, faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons"
 import { LayerModel, MapModel, getLayer } from "@/model/map"
 import LayerForm from "./layerForm"
 
@@ -13,6 +13,7 @@ type PropType = {
 
 const Sidebar: FC<PropType> = ({ activeLayer, setActiveLayer }) => {
     const {map, setMap} = useContext(MapContext)
+    const [visible, setVisible] = useState(true)
     const [editing, setEditing] = useState<null | LayerModel>()
     const [creating, setCreating] = useState(false)
 
@@ -67,7 +68,11 @@ const Sidebar: FC<PropType> = ({ activeLayer, setActiveLayer }) => {
     }
 
     return (
-        <div className={styles.sidebar}>
+        <div className={`${styles.sidebar} ${visible ? styles.visible : styles.hidden}`}>
+            <button className={styles.collapse} onClick={() => setVisible(!visible)}>
+                <FontAwesomeIcon icon={visible ? faChevronLeft : faChevronRight} />
+            </button>
+
             <div className={styles.title}>World Canvas</div>
 
             <div className={styles.layersContainer}>

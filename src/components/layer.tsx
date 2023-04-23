@@ -38,6 +38,8 @@ const Layer: FC<PropType> = ({ layer, currentZoom, onUpdate }) => {
     }
 
     function onMarkerMoved(markerId: number, clientX: number, clientY: number) {
+        console.log('test vvv')
+        
         const {x, y} = calculateMapCoords(clientX, clientY)
         if (!x || !y) return
 
@@ -48,7 +50,7 @@ const Layer: FC<PropType> = ({ layer, currentZoom, onUpdate }) => {
         marker.x = x
         marker.y = y
 
-        onUpdate(layer)
+        onUpdate(layerClone)
     }
 
     function deleteMarker(markerId: number) {

@@ -1,7 +1,6 @@
 @import '/src/styles/variables.scss';
 
 .mapContainer {
-    width: calc(100% - $sidebar-size);
     height: 100%;
     display: flex;
     align-items: center;

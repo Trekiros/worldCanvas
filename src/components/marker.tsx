@@ -70,7 +70,6 @@ const Marker: FC<PropType> = ({marker, onMarkerUpdated, onMarkerMoved, onMarkerD
         onMove={(x, y) => {
             setMoving(false)
             onMarkerMoved(x, y)
-            console.log('test vv')
         }}
     />
 
