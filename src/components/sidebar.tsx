@@ -2,9 +2,11 @@ import { FC, MouseEvent, useContext, useState } from "react"
 import styles from './sidebar.module.scss'
 import { MapContext } from "@/model/context"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { faChevronLeft, faChevronRight, faCog, faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons"
+import { faChevronLeft, faChevronRight, faCog, faEye, faEyeSlash, faGripVertical } from "@fortawesome/free-solid-svg-icons"
 import { LayerModel, MapModel, getLayer } from "@/model/map"
 import LayerForm from "./layerForm"
+import DragDropList from "./dragDropList"
+import { userAgent } from "next/server"
 
 type PropType = {
     activeLayer: number,
@@ -67,6 +69,28 @@ const Sidebar: FC<PropType> = ({ activeLayer, setActiveLayer }) => {
         setEditing(null)
     }
 
+    function onReorder(layers: LayerModel[]) {
+        const mapClone: MapModel = JSON.parse(JSON.stringify(map))
+        mapClone.layers = layers
+        setMap(mapClone)
+    }
+
+    function toggleSidebar() {
+        const vis = visible
+        setVisible(!vis)
+        
+        // On mobile, toggle full screen when sidebar is hidden
+        if (!navigator || !document) return
+        if (!/Android|iPhone/i.test(navigator.userAgent)) return
+
+        if(vis) {
+            const docEl = document.documentElement
+            docEl.requestFullscreen({ navigationUI: 'hide' })
+        } else {
+            document.exitFullscreen()
+        }
+    }
+
     return (
         <div className={`${styles.sidebar} ${visible ? styles.visible : styles.hidden}`}>
             <button className={styles.collapse} onClick={() => setVisible(!visible)}>
@@ -77,21 +101,29 @@ const Sidebar: FC<PropType> = ({ activeLayer, setActiveLayer }) => {
 
             <div className={styles.layersContainer}>
                 <div className={styles.layers}>
-                    {map.layers.map(layer => (
-                        <div className={styles.layerContainer} key={layer.id} style={{backgroundColor: layer.color}}>
-                            <div className={styles.layer}>
-                                <button onClick={() => setActiveLayer(layer.id)} className={styles.layerLabel}>
-                                    {layer.name}
-                                </button>
-                                <button onClick={() => toggleVisibility(layer.id)} className={styles.toggleVisibility}>
-                                    <FontAwesomeIcon icon={layer.visible ? faEye : faEyeSlash} />
-                                </button>
-                                <button className={styles.layerSettings} onClick={(e) => editLayer(e, layer)}>
-                                    <FontAwesomeIcon icon={faCog} />
-                                </button>
+                    <DragDropList
+                        items={map.layers}
+                        onReorder={onReorder}
+                        idGetter={layer => String(layer.id)}
+                        itemRender={layer => (
+                            <div className={styles.layerContainer} key={layer.id} style={{backgroundColor: layer.color}} draggable={true}>
+                                <div className={styles.layer}>
+                                    <div className={styles.dragHandle}>
+                                        <FontAwesomeIcon icon={faGripVertical} />
+                                    </div>
+                                    <button onClick={() => setActiveLayer(layer.id)} className={styles.layerLabel}>
+                                        {layer.name}
+                                    </button>
+                                    <button onClick={() => toggleVisibility(layer.id)} className={styles.toggleVisibility}>
+                                        <FontAwesomeIcon icon={layer.visible ? faEye : faEyeSlash} />
+                                    </button>
+                                    <button className={styles.layerSettings} onClick={(e) => editLayer(e, layer)}>
+                                        <FontAwesomeIcon icon={faCog} />
+                                    </button>
+                                </div>
                             </div>
-                        </div>
-                    ))}
+                        ) }
+                    />
                 </div>
                 <button className={styles.addLayer}>+</button>
             </div>

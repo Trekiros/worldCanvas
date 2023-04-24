@@ -74,23 +74,37 @@
         
                         &:hover { background-color: #fff1 }
 
-                        svg, img { width: 22px; filter: brightness(10) }
+                        svg, img { width: 16px; filter: brightness(10) }
+                    }
+
+                    .dragHandle {
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        color: white;
+                        padding: 6px;
+
+                        svg { width: 12px;}
                     }
     
                     .layerLabel {
                         flex-grow: 1;
-                        text-align: left;
+                        justify-content: left;
                         font-size: 12pt;
                     }
-    
-                    .layerSettings { }
                 }
             }
-
         }
 
         .addLayer {
+            background: none;
+            border: none;
+            font-size: 16pt;
+            color: white;
+            padding: 0.5em;
+            transition: background-color 0.2s;
 
+            &:hover { background-color: #fff1 }
         }
     }
 }

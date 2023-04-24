@@ -14,6 +14,23 @@ export const defaultMap: MapModel = {
         markers: [
             {
                 id: 0,
+                name: 'Everlund',
+                description: 'A nice little town.',
+                x: 50, y: 40,
+            },
+        ],
+        paths: [],
+        areas: [],
+      },
+      {
+        id: 1,
+        name: "Cities",
+        visible: true,
+        iconUrl: "https://cdn.pixabay.com/photo/2019/09/12/13/40/house-4471626_960_720.png",
+        color: '#fff1',
+        markers: [
+            {
+                id: 0,
                 name: 'Waterdeep',
                 description: 'The city of splendor!',
                 x: 50, y: 50,
