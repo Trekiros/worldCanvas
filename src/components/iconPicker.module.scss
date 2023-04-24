@@ -1,0 +1,48 @@
+.iconPicker {
+    background: #fff1;
+    border-radius: 4px;
+
+    .header {
+        display: flex;
+        flex-direction: row;
+
+        button { flex: 1 1 0; }
+    }
+
+    .content {
+        max-height: 200px;
+        overflow-y: scroll;
+        overflow-x: hidden;
+
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+
+        &::-webkit-scrollbar { width: 12px; }
+        &::-webkit-scrollbar-track { background: #fff1 }
+        &::-webkit-scrollbar-thumb { background: #888 }
+
+        .icon {
+            height: 60px;
+            width: 60px;
+            padding: 0;
+
+            img { width: 22px; filter: invert(1); margin: 4px; }
+        }
+
+        .urlSelector {
+            width: 100%;
+            display: flex;
+            flex-direction: row;
+
+            img { flex-shrink: 1; height: 30px; }
+
+            input { flex-grow: 1; height: 30px; }
+        }
+    }
+    
+    .activeBtn {
+        background-color: #fff2!important;
+        border: 2px solid #fff3!important;
+    }
+}

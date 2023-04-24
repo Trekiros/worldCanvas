@@ -2,11 +2,12 @@ import { FC, MouseEvent, useContext, useState } from "react"
 import styles from './sidebar.module.scss'
 import { MapContext } from "@/model/context"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { faChevronLeft, faChevronRight, faCog, faEye, faEyeSlash, faGripVertical } from "@fortawesome/free-solid-svg-icons"
+import { faChevronLeft, faChevronRight, faCog, faEye, faEyeSlash, faFolder, faGripVertical, faPlus, faSave } from "@fortawesome/free-solid-svg-icons"
 import { LayerModel, MapModel, getLayer } from "@/model/map"
 import LayerForm from "./layerForm"
 import DragDropList from "./dragDropList"
-import { userAgent } from "next/server"
+import MapForm from './mapForm'
+import domtoimage from 'dom-to-image'
 
 type PropType = {
     activeLayer: number,
@@ -18,6 +19,8 @@ const Sidebar: FC<PropType> = ({ activeLayer, setActiveLayer }) => {
     const [visible, setVisible] = useState(true)
     const [editing, setEditing] = useState<null | LayerModel>()
     const [creating, setCreating] = useState(false)
+    const [mapSettings, setMapSettings] = useState(false)
+    const [creatingMap, setCreatingMap] = useState(false)
 
     function editLayer(e: MouseEvent, layer: LayerModel) {
         e.stopPropagation()
@@ -75,6 +78,13 @@ const Sidebar: FC<PropType> = ({ activeLayer, setActiveLayer }) => {
         setMap(mapClone)
     }
 
+    function onLayerCreated(layer: LayerModel) {
+        const mapClone: MapModel = JSON.parse(JSON.stringify(map))
+        mapClone.layers.push(layer)
+        setMap(mapClone)
+        setCreating(false)
+    }
+
     function toggleSidebar() {
         const vis = visible
         setVisible(!vis)
@@ -91,6 +101,36 @@ const Sidebar: FC<PropType> = ({ activeLayer, setActiveLayer }) => {
         }
     }
 
+    async function exportMap() {
+        const mapElem = document.getElementById('map')
+        if (!mapElem) return
+
+        const imgString = await domtoimage.toPng(mapElem)
+
+        const img = new Image();
+        img.crossOrigin = 'anonymous';
+        img.src = imgString;
+        img.onload = () => {
+          // create Canvas
+          const canvas = document.createElement('canvas');
+          const ctx = canvas.getContext('2d')!;
+          canvas.width = img.width;
+          canvas.height = img.height;
+          ctx.drawImage(img, 0, 0);
+          // create a tag
+          const a = document.createElement('a');
+          a.download = 'download.png';
+          a.href = canvas.toDataURL('image/png');
+          a.click();
+        }; 
+    }
+
+    function updateMap(newValue: MapModel) {
+        setMap(newValue)
+        setCreatingMap(false)
+        setMapSettings(false)
+    }
+
     return (
         <div className={`${styles.sidebar} ${visible ? styles.visible : styles.hidden}`}>
             <button className={styles.collapse} onClick={toggleSidebar}>
@@ -99,6 +139,27 @@ const Sidebar: FC<PropType> = ({ activeLayer, setActiveLayer }) => {
 
             <div className={styles.title}>World Canvas</div>
 
+            <label>Map: {map.name}</label>
+            <div className={styles.mapSettings}>
+                <button onClick={() => setMapSettings(true)}>
+                    <FontAwesomeIcon icon={faCog} />
+                    <label>Settings</label>
+                </button>
+                <button onClick={exportMap}>
+                    <FontAwesomeIcon icon={faSave} />
+                    <label>Save</label>
+                </button>
+                <button onClick={() => {}}>
+                    <FontAwesomeIcon icon={faFolder} />
+                    <label>Open</label>
+                </button>
+                <button onClick={() => setCreatingMap(true)}>
+                    <FontAwesomeIcon icon={faPlus} />
+                    <label>New</label>
+                </button>
+            </div>
+
+            <label>Layers</label>
             <div className={styles.layersContainer}>
                 <div className={styles.layers}>
                     <DragDropList
@@ -106,7 +167,11 @@ const Sidebar: FC<PropType> = ({ activeLayer, setActiveLayer }) => {
                         onReorder={onReorder}
                         idGetter={layer => String(layer.id)}
                         itemRender={layer => (
-                            <div className={styles.layerContainer} key={layer.id} style={{backgroundColor: layer.color}} draggable={true}>
+                            <div 
+                                className={`${styles.layerContainer} ${(activeLayer === layer.id) ? styles.active : ''}`} 
+                                key={layer.id} 
+                                style={{backgroundColor: layer.color}} 
+                             >
                                 <div className={styles.layer}>
                                     <div className={styles.dragHandle}>
                                         <FontAwesomeIcon icon={faGripVertical} />
@@ -125,11 +190,23 @@ const Sidebar: FC<PropType> = ({ activeLayer, setActiveLayer }) => {
                         ) }
                     />
                 </div>
-                <button className={styles.addLayer}>+</button>
+                <button className={styles.addLayer} onClick={() => setCreating(true)}>
+                    <FontAwesomeIcon icon={faPlus} />
+                    Add Layer
+                </button>
             </div>
 
             { !editing ? null : (
                 <LayerForm onCancel={() => setEditing(null)} onSubmit={onLayerUpdated} onDelete={onLayerdeleted} initialValue={editing} />
+            )}
+            { !creating ? null : (
+                <LayerForm onCancel={() => setCreating(false)} onSubmit={onLayerCreated} />
+            )}
+            { !mapSettings ? null :(
+                <MapForm onCancel={() => setMapSettings(false)} onSubmit={updateMap} initialValue={map} />
+            )}
+            { !creatingMap ? null : (
+                <MapForm onCancel={() => setCreatingMap(false)} onSubmit={updateMap} />
             )}
         </div>
     )

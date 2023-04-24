@@ -3,13 +3,13 @@ import { MapModel } from "./map"
 
 export const defaultMap: MapModel = {
     name: "Faerun",
-    imageUrl: "http://media.wizards.com/2015/images/dnd/resources/Sword-Coast-Map_LowRes.jpg",
+    imageUrl: "/faerun.jpg",
     layers: [
       {
-        id: 0,
+        id: 4524535,
         name: "Towns",
         visible: true,
-        iconUrl: "https://cdn.pixabay.com/photo/2019/09/12/13/40/house-4471626_960_720.png",
+        iconUrl: "/icons/house.svg",
         color: '#fff1',
         markers: [
             {
@@ -23,10 +23,10 @@ export const defaultMap: MapModel = {
         areas: [],
       },
       {
-        id: 1,
+        id: 45885,
         name: "Cities",
         visible: true,
-        iconUrl: "https://cdn.pixabay.com/photo/2019/09/12/13/40/house-4471626_960_720.png",
+        iconUrl: "/icons/house.svg",
         color: '#fff1',
         markers: [
             {

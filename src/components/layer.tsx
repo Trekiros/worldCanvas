@@ -37,9 +37,7 @@ const Layer: FC<PropType> = ({ layer, currentZoom, onUpdate }) => {
         setPopin(null)
     }
 
-    function onMarkerMoved(markerId: number, clientX: number, clientY: number) {
-        console.log('test vvv')
-        
+    function onMarkerMoved(markerId: number, clientX: number, clientY: number) {        
         const {x, y} = calculateMapCoords(clientX, clientY)
         if (!x || !y) return
 
@@ -84,7 +82,8 @@ const Layer: FC<PropType> = ({ layer, currentZoom, onUpdate }) => {
             { /* MARKERS */}
             { layer.markers.map((marker) => (
                 <Marker
-                    key={marker.id} 
+                    key={marker.id}
+                    layer={layer}
                     marker={marker}
                     onMarkerUpdated={(newValue) => onMarkerUpdated(newValue)}
                     onMarkerMoved={(x, y) => onMarkerMoved(marker.id, x, y)}

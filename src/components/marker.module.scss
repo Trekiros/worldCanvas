@@ -1,7 +1,22 @@
-.marker {
+.markerContainer {
     position: absolute;
     transform: translate(-50%, -50%);
     
+    .markerContent {
+        position: relative;
+
+        label {
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            color: white;
+            background-color: #0005;
+            padding: 4px;
+            border-radius: 4px;
+        }
+    }
+
     .icon {
         width: 30px;
         pointer-events: initial;

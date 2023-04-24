@@ -55,39 +55,5 @@
             width: 22px;
             margin: 4px;
         }
-
-        .layerName { font-size: 22pt; }
-
-        .buttons {
-            display: flex;
-            flex-direction: row;
-
-            button {
-                width: unset;
-                flex: 1 1 0;
-
-                &:disabled {
-                    background-color: #fff0!important;
-                    color: #aaa;
-                }
-            }
-        }
-
-        label {
-            color: white;
-            margin: 12px 4px;
-            display: block;
-        }
-
-        .colorPicker, .visibilityRange {
-            margin: 1em 0;
-        }
-
-        .color {
-            width: 12px;
-            height: 12px;
-            border-radius: 4px;
-            display: inline-block;
-        }
     }
 }

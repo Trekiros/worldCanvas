@@ -1,5 +1,3 @@
-import { Color } from "./utils"
-
 export type MapModel = {
     name: string,
     imageUrl: string,
@@ -23,7 +21,7 @@ export type LayerModel = {
 
     // Defaults for all markers/areas of this layer
     iconUrl: string,
-    color: Color,
+    color: string,
     
     markers: MarkerModel[],
     paths: PathModel[],
@@ -51,7 +49,7 @@ export type AreaModel = {
     layerId: number,
     name: string,
     points: {x: number, y: number}[],
-    color?: Color, // Default: layer.color
+    color?: string, // Default: layer.color
 }
 
 export function getLayer(map: MapModel, layerId: number) {

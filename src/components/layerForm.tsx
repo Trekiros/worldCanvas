@@ -4,6 +4,8 @@ import styles from './layerForm.module.scss'
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCheck, faTrash } from "@fortawesome/free-solid-svg-icons";
 import Slider from 'rc-slider'
+import { SliderPicker } from "react-color";
+import IconPicker from "./iconPicker";
 
 type PropType = {
     onSubmit: (newValue: LayerModel) => void,
@@ -15,8 +17,8 @@ type PropType = {
 const defaultValue: LayerModel = {
     id: Date.now(),
     name: '',
-    color: '#fff',
-    iconUrl: '',
+    color: '#fff3',
+    iconUrl: '/icons/house.svg',
     markers: [],
     paths: [],
     areas: [],
@@ -50,6 +52,16 @@ const LayerForm: FC<PropType> = ({ onSubmit, onDelete, onCancel, initialValue}) 
         })
     }
 
+    function removeAlpha(hex: string) {
+        // #rrggbbaa format
+        if (hex.length === 9) return hex.slice(0, -2)
+        
+        // #rgba format
+        if (hex.length === 5) return hex.slice(0, -1)
+
+        return hex
+    }
+
     /*
         layer.name = newValue.name
         layer.fogOfWar = newValue.fogOfWar
@@ -75,7 +87,7 @@ const LayerForm: FC<PropType> = ({ onSubmit, onDelete, onCancel, initialValue}) 
                 />
 
                 <div className={styles.visibilityRange}>
-                    <label htmlFor="visibilityRange">Zoom: visible from {layer.minZoom || 20}% to {layer.maxZoom || 800}%</label>
+                    <label>Zoom: visible from {layer.minZoom || 20}% to {layer.maxZoom || 800}%</label>
                     <Slider 
                         range 
                         allowCross={false} 
@@ -89,6 +101,16 @@ const LayerForm: FC<PropType> = ({ onSubmit, onDelete, onCancel, initialValue}) 
                         marks={{100: '100%', 200: '200%', 300: '300%', 400: '400%', 500: '500%', 600: '600%', 700: '700%', 800: '800%'}}
                         ariaLabelForHandle={(layer.minZoom && layer.maxZoom) ? [`${layer.minZoom}%`, `${layer.maxZoom}%`] : undefined}
                     />
+                </div>
+
+                <div className={styles.iconPicker}>
+                    <label>Default icon label</label>
+                    <IconPicker value={layer.iconUrl} onChange={(newValue) => update(layerClone => { layerClone.iconUrl = newValue || '' })} />
+                </div>
+
+                <div className={styles.colorPicker}>
+                    <label>Default path/area color: <span className={styles.color} style={{backgroundColor: removeAlpha(layer.color) }} /></label>
+                    <SliderPicker color={layer.color} onChange={(newValue) => update(clone => { clone.color = `${newValue.hex}33` })} />
                 </div>
 
                 <div className={styles.buttons}>

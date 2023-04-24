@@ -37,6 +37,44 @@
         font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
         font-size: 1.5em;
         letter-spacing: 0.03em;
+        user-select: none;
+    }
+
+    >label {
+        width: 100%;
+        text-align: left;
+        font-weight: bold;
+        padding: 8px;
+        color: white;
+        user-select: none;
+    }
+
+    .mapSettings {
+        display: grid;
+        grid-template-rows: 1fr 1fr;
+        grid-template-columns: 1fr 1fr;
+    
+        width: 100%;
+        
+        button {
+            background: none;
+            border: none;
+            border-radius: 4px;
+            padding: 0.5em 1em;
+            transition: background-color 0.2s;
+            color: white;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: center;
+
+            svg { width: 22px; margin-right: 1em }
+            label { flex-grow: 1; text-align: left }
+
+            &:hover { 
+                background-color: #fff1;
+            }
+        }
     }
 
     .layersContainer {
@@ -48,6 +86,7 @@
         .layers {
             flex-grow: 1;
             overflow-y: scroll;
+            overflow-x: hidden;
             
             &::-webkit-scrollbar { width: 12px; }
             &::-webkit-scrollbar-track { background: #fff1 }
@@ -56,6 +95,11 @@
             .layerContainer {
                 width: 100%;
                 
+                &.active {
+                    margin-left: 8px;
+                    border-left: 8px solid #fff1;
+                }
+
                 .layer {
                     width: 100%;
                     display: flex;
@@ -99,12 +143,14 @@
         .addLayer {
             background: none;
             border: none;
-            font-size: 16pt;
+            font-size: 14pt;
             color: white;
             padding: 0.5em;
             transition: background-color 0.2s;
 
             &:hover { background-color: #fff1 }
+
+            svg { width: 16px; margin-right: 1em }
         }
     }
 }

@@ -23,7 +23,7 @@ const ClickableImg: FC<PropType> = ({src, onClick, children}) => {
     }
 
     return (
-        <div className={styles.clickableImg}>
+        <div className={styles.clickableImg} id='map'>
             <button
                 onMouseDown={onMouseDown}
                 onMouseUp={onMouseUp}

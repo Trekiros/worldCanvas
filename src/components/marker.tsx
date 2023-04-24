@@ -1,19 +1,20 @@
 import { FC, useContext, useState } from 'react'
 import { KeepScale } from "react-zoom-pan-pinch";
-import { MarkerModel } from '@/model/map'
+import { LayerModel, MarkerModel } from '@/model/map'
 import styles from './marker.module.scss'
 import MarkerMenu from './markerMenu';
 import { PopinContext } from '@/model/context';
 import DraggingMarker from './draggingMarker';
 
 type PropType = {
+    layer: LayerModel,
     marker: MarkerModel,
     onMarkerUpdated: (newValue: MarkerModel) => void,
     onMarkerMoved: (clientX: number, clientY: number) => void,
     onMarkerDeleted: () => void,
 }
 
-const Marker: FC<PropType> = ({marker, onMarkerUpdated, onMarkerMoved, onMarkerDeleted}) => {
+const Marker: FC<PropType> = ({layer, marker, onMarkerUpdated, onMarkerMoved, onMarkerDeleted}) => {
     const {popin, setPopin} = useContext(PopinContext)
     const [moving, setMoving] = useState(false)
 
@@ -66,7 +67,7 @@ const Marker: FC<PropType> = ({marker, onMarkerUpdated, onMarkerMoved, onMarkerD
     }
 
     if (moving) return <DraggingMarker
-        iconUrl={'https://cdn.pixabay.com/photo/2019/09/12/13/40/house-4471626_960_720.png'}
+        iconUrl={marker.iconUrl || layer.iconUrl}
         onMove={(x, y) => {
             setMoving(false)
             onMarkerMoved(x, y)
@@ -74,9 +75,10 @@ const Marker: FC<PropType> = ({marker, onMarkerUpdated, onMarkerMoved, onMarkerD
     />
 
     return (
-            <div key={marker.id} className={styles.marker} style={{ left: `${marker.x}%`, top: `${marker.y}%` }} >
+            <div key={marker.id} className={styles.markerContainer} style={{ left: `${marker.x}%`, top: `${marker.y}%` }} >
                 <KeepScale>
                     <div
+                        className={styles.markerContent}
                         onClick={updateMarker}
                         onMouseEnter={hoverStart}
                         onMouseLeave={hoverEnd}
@@ -84,8 +86,9 @@ const Marker: FC<PropType> = ({marker, onMarkerUpdated, onMarkerMoved, onMarkerD
                         <img
                             className={styles.icon}
                             draggable={false}
-                            src="https://cdn.pixabay.com/photo/2019/09/12/13/40/house-4471626_960_720.png"
+                            src={marker.iconUrl || layer.iconUrl}
                         />
+                        <label>{marker.name}</label>
                     </div>
                 </KeepScale>
             </div>

@@ -1,5 +1,5 @@
-import { FC, ReactNode } from "react";
-import { DragDropContext, Draggable, Droppable } from "react-beautiful-dnd";
+import { ReactNode, useEffect } from "react";
+import { DragDropContext, Draggable, Droppable, resetServerContext } from "react-beautiful-dnd";
 
 type PropType<T> = {
     items: T[],
@@ -9,6 +9,8 @@ type PropType<T> = {
 }
 
 function DragDropList<T>({ items, onReorder, itemRender, idGetter }: PropType<T>) {
+    resetServerContext() // Server side rendering workaround. Not sure about the perfs
+
     function handleDrop(droppedItem: any) {
         // Ignore drop outside droppable container
         if (!droppedItem.destination) return;

@@ -3,6 +3,7 @@ import { MarkerModel } from "@/model/map";
 import styles from './markerMenu.module.scss'
 import { faTrash, faCheck, faUpDownLeftRight } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import IconPicker from "./iconPicker";
 
 type PropType = {
     x: number,
@@ -47,6 +48,7 @@ const MarkerMenu: FC<PropType> = ({x, y, onMarkerCreated, initialValue, onMoveMa
                 value={marker.description} 
                 onChange={(e) => update((p) => { p.description = e.target.value })} 
             />
+            <IconPicker value={marker.iconUrl} onChange={(newValue) => update(p => { p.iconUrl = newValue})} nullable={true} />
             <div className={styles.buttons}>
                 <button onClick={submit} disabled={!validate()}>
                     <FontAwesomeIcon icon={faCheck} />
