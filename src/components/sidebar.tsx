@@ -93,7 +93,7 @@ const Sidebar: FC<PropType> = ({ activeLayer, setActiveLayer }) => {
 
     return (
         <div className={`${styles.sidebar} ${visible ? styles.visible : styles.hidden}`}>
-            <button className={styles.collapse} onClick={() => setVisible(!visible)}>
+            <button className={styles.collapse} onClick={toggleSidebar}>
                 <FontAwesomeIcon icon={visible ? faChevronLeft : faChevronRight} />
             </button>
 
