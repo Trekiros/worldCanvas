@@ -11,7 +11,7 @@
 
     .content {
         max-height: 200px;
-        overflow-y: scroll;
+        overflow-y: auto;
         overflow-x: hidden;
 
         display: flex;
@@ -24,7 +24,7 @@
 
         .icon {
             height: 60px;
-            width: 60px;
+            width: 60px!important;
             padding: 0;
 
             img { width: 22px; filter: invert(1); margin: 4px; }

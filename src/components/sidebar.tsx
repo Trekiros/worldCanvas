@@ -1,4 +1,4 @@
-import { FC, MouseEvent, useContext, useState } from "react"
+import { FC, MouseEvent, ReactNode, useContext, useEffect, useState } from "react"
 import styles from './sidebar.module.scss'
 import { MapContext } from "@/model/context"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
@@ -7,7 +7,8 @@ import { LayerModel, MapModel, getLayer } from "@/model/map"
 import LayerForm from "./layerForm"
 import DragDropList from "./dragDropList"
 import MapForm from './mapForm'
-import domtoimage from 'dom-to-image'
+import SaveMapMenu from "./saveMapMenu"
+import UploadMenu from "./uploadMenu"
 
 type PropType = {
     activeLayer: number,
@@ -17,14 +18,18 @@ type PropType = {
 const Sidebar: FC<PropType> = ({ activeLayer, setActiveLayer }) => {
     const {map, setMap} = useContext(MapContext)
     const [visible, setVisible] = useState(true)
-    const [editing, setEditing] = useState<null | LayerModel>()
-    const [creating, setCreating] = useState(false)
-    const [mapSettings, setMapSettings] = useState(false)
-    const [creatingMap, setCreatingMap] = useState(false)
+    const [modal, setModal] = useState<ReactNode | null>(null)
+
+    useEffect(() => {
+        if (!map.layers.length) return
+        setActiveLayer(map.layers[map.layers.length - 1].id)
+    }, [map.id, map.layers.length])
 
     function editLayer(e: MouseEvent, layer: LayerModel) {
         e.stopPropagation()
-        setEditing(layer)
+        setModal(
+            <LayerForm onSubmit={(newValue) => onLayerUpdated(layer, newValue)} onDelete={() => onLayerdeleted(layer)} initialValue={layer} />
+        )
     }
 
     function toggleVisibility(layerId: number) {
@@ -36,11 +41,10 @@ const Sidebar: FC<PropType> = ({ activeLayer, setActiveLayer }) => {
         setMap(mapClone)
     }
 
-    function onLayerUpdated(newValue: LayerModel) {
-        if (!editing) return
+    function onLayerUpdated(oldValue: LayerModel, newValue: LayerModel) {
 
         const mapClone: MapModel = JSON.parse(JSON.stringify(map))
-        const layer = getLayer(mapClone, editing.id)
+        const layer = getLayer(mapClone, oldValue.id)
 
         if (!layer) return
 
@@ -54,22 +58,19 @@ const Sidebar: FC<PropType> = ({ activeLayer, setActiveLayer }) => {
         layer.playerPermissions = newValue.playerPermissions
 
         setMap(mapClone)
-        setEditing(null)
+        setModal(null)
     }
 
-    function onLayerdeleted() {
-        if (!editing) return
-        const layerId = editing.id
-
+    function onLayerdeleted(layer: LayerModel) {
         const mapClone: MapModel = JSON.parse(JSON.stringify(map))
         
-        const layerIndex = mapClone.layers.findIndex(layer => (layer.id === layerId))
+        const layerIndex = mapClone.layers.findIndex(layer => (layer.id === layer.id))
         if (layerIndex === -1) return
 
         mapClone.layers.splice(layerIndex, 1)
 
         setMap(mapClone)
-        setEditing(null)
+        setModal(null)
     }
 
     function onReorder(layers: LayerModel[]) {
@@ -78,11 +79,17 @@ const Sidebar: FC<PropType> = ({ activeLayer, setActiveLayer }) => {
         setMap(mapClone)
     }
 
+    function createLayer() {
+        setModal(
+            <LayerForm onSubmit={onLayerCreated} />
+        )
+    }
+
     function onLayerCreated(layer: LayerModel) {
         const mapClone: MapModel = JSON.parse(JSON.stringify(map))
         mapClone.layers.push(layer)
         setMap(mapClone)
-        setCreating(false)
+        setModal(false)
     }
 
     function toggleSidebar() {
@@ -101,34 +108,36 @@ const Sidebar: FC<PropType> = ({ activeLayer, setActiveLayer }) => {
         }
     }
 
-    async function exportMap() {
-        const mapElem = document.getElementById('map')
-        if (!mapElem) return
+    function saveMap() {
+        setModal(
+            <SaveMapMenu map={map} />
+        )
+    }
 
-        const imgString = await domtoimage.toPng(mapElem)
+    function openMap() {
+        setModal(
+            <UploadMenu onUpload={(m) => {
+                setMap(m)
+                setModal(null)
+            }} />
+        )
+    }
 
-        const img = new Image();
-        img.crossOrigin = 'anonymous';
-        img.src = imgString;
-        img.onload = () => {
-          // create Canvas
-          const canvas = document.createElement('canvas');
-          const ctx = canvas.getContext('2d')!;
-          canvas.width = img.width;
-          canvas.height = img.height;
-          ctx.drawImage(img, 0, 0);
-          // create a tag
-          const a = document.createElement('a');
-          a.download = 'download.png';
-          a.href = canvas.toDataURL('image/png');
-          a.click();
-        }; 
+    function editMap() {
+        setModal(
+            <MapForm onSubmit={updateMap} initialValue={map} />
+        )
+    }
+
+    function createMap() {
+        setModal(
+            <MapForm onSubmit={updateMap} />
+        )
     }
 
     function updateMap(newValue: MapModel) {
         setMap(newValue)
-        setCreatingMap(false)
-        setMapSettings(false)
+        setModal(null)
     }
 
     return (
@@ -141,19 +150,19 @@ const Sidebar: FC<PropType> = ({ activeLayer, setActiveLayer }) => {
 
             <label>Map: {map.name}</label>
             <div className={styles.mapSettings}>
-                <button onClick={() => setMapSettings(true)}>
+                <button onClick={editMap}>
                     <FontAwesomeIcon icon={faCog} />
                     <label>Settings</label>
                 </button>
-                <button onClick={exportMap}>
+                <button onClick={saveMap}>
                     <FontAwesomeIcon icon={faSave} />
                     <label>Save</label>
                 </button>
-                <button onClick={() => {}}>
+                <button onClick={openMap}>
                     <FontAwesomeIcon icon={faFolder} />
                     <label>Open</label>
                 </button>
-                <button onClick={() => setCreatingMap(true)}>
+                <button onClick={createMap}>
                     <FontAwesomeIcon icon={faPlus} />
                     <label>New</label>
                 </button>
@@ -190,23 +199,18 @@ const Sidebar: FC<PropType> = ({ activeLayer, setActiveLayer }) => {
                         ) }
                     />
                 </div>
-                <button className={styles.addLayer} onClick={() => setCreating(true)}>
+                <button className={styles.addLayer} onClick={createLayer}>
                     <FontAwesomeIcon icon={faPlus} />
                     Add Layer
                 </button>
             </div>
 
-            { !editing ? null : (
-                <LayerForm onCancel={() => setEditing(null)} onSubmit={onLayerUpdated} onDelete={onLayerdeleted} initialValue={editing} />
-            )}
-            { !creating ? null : (
-                <LayerForm onCancel={() => setCreating(false)} onSubmit={onLayerCreated} />
-            )}
-            { !mapSettings ? null :(
-                <MapForm onCancel={() => setMapSettings(false)} onSubmit={updateMap} initialValue={map} />
-            )}
-            { !creatingMap ? null : (
-                <MapForm onCancel={() => setCreatingMap(false)} onSubmit={updateMap} />
+            { !modal ? null : (
+                <div className={styles.modalOverlay} onMouseDown={() => setModal(null)}>
+                    <div className={styles.modal} onMouseDown={e => e.stopPropagation()}>
+                        {modal}
+                    </div>
+                </div>
             )}
         </div>
     )

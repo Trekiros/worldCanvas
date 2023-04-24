@@ -1,0 +1,30 @@
+.uploadMenu {
+    position: relative;
+
+    label {
+        display: block;
+        background: #fff1;
+        border-radius: 8px;
+        border: 4px dashed #fff5;
+        transition: background-color 0.2s;
+        width: 100%;
+        height: min(200px, 50vh);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+
+        &:hover { background: #fff3 }
+    }
+
+    input {
+        visibility: hidden;
+        position: absolute;
+    }
+
+    .error {
+        text-align: center;
+        color: #f88;
+        margin-top: 1em;
+    }
+}

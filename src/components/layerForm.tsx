@@ -9,7 +9,6 @@ import IconPicker from "./iconPicker";
 
 type PropType = {
     onSubmit: (newValue: LayerModel) => void,
-    onCancel: () => void,
     onDelete?: () => void,
     initialValue?: LayerModel,
 }
@@ -22,9 +21,10 @@ const defaultValue: LayerModel = {
     markers: [],
     paths: [],
     areas: [],
+    visible: true,
 }
 
-const LayerForm: FC<PropType> = ({ onSubmit, onDelete, onCancel, initialValue}) => {
+const LayerForm: FC<PropType> = ({ onSubmit, onDelete, initialValue}) => {
     const [layer, setLayer] = useState<LayerModel>(initialValue || {...defaultValue, id: Date.now()})
 
     function validate() {
@@ -75,54 +75,52 @@ const LayerForm: FC<PropType> = ({ onSubmit, onDelete, onCancel, initialValue}) 
     */
 
     return (
-        <div className={styles.modalOverlay} onMouseDown={onCancel}>
-            <div className={styles.modal} onMouseDown={(e) => e.stopPropagation()}>
-                <input 
-                    className={styles.layerName}
-                    type='text' 
-                    placeholder="Layer name" 
-                    value={layer.name} 
-                    onChange={(e) => update((p) => { p.name = e.target.value })} 
-                    onSubmit={submit}
+        <div className={styles.layerForm}>
+            <input 
+                className={styles.layerName}
+                type='text' 
+                placeholder="Layer name" 
+                value={layer.name} 
+                onChange={(e) => update((p) => { p.name = e.target.value })} 
+                onSubmit={submit}
+            />
+
+            <div className={styles.visibilityRange}>
+                <label>Zoom: visible from {layer.minZoom || 20}% to {layer.maxZoom || 800}%</label>
+                <Slider 
+                    range 
+                    allowCross={false} 
+                    step={20} 
+                    min={20} 
+                    max={800} 
+                    defaultValue={[20, 800]}
+                    value={(layer.minZoom && layer.maxZoom) ? [layer.minZoom, layer.maxZoom] : undefined}
+                    draggableTrack 
+                    onChange={onVisibilityRangeUpdated as any}
+                    marks={{100: '100%', 200: '200%', 300: '300%', 400: '400%', 500: '500%', 600: '600%', 700: '700%', 800: '800%'}}
+                    ariaLabelForHandle={(layer.minZoom && layer.maxZoom) ? [`${layer.minZoom}%`, `${layer.maxZoom}%`] : undefined}
                 />
+            </div>
 
-                <div className={styles.visibilityRange}>
-                    <label>Zoom: visible from {layer.minZoom || 20}% to {layer.maxZoom || 800}%</label>
-                    <Slider 
-                        range 
-                        allowCross={false} 
-                        step={20} 
-                        min={20} 
-                        max={800} 
-                        defaultValue={[20, 800]}
-                        value={(layer.minZoom && layer.maxZoom) ? [layer.minZoom, layer.maxZoom] : undefined}
-                        draggableTrack 
-                        onChange={onVisibilityRangeUpdated as any}
-                        marks={{100: '100%', 200: '200%', 300: '300%', 400: '400%', 500: '500%', 600: '600%', 700: '700%', 800: '800%'}}
-                        ariaLabelForHandle={(layer.minZoom && layer.maxZoom) ? [`${layer.minZoom}%`, `${layer.maxZoom}%`] : undefined}
-                    />
-                </div>
+            <div className={styles.iconPicker}>
+                <label>Default icon label</label>
+                <IconPicker value={layer.iconUrl} onChange={(newValue) => update(layerClone => { layerClone.iconUrl = newValue || '' })} />
+            </div>
 
-                <div className={styles.iconPicker}>
-                    <label>Default icon label</label>
-                    <IconPicker value={layer.iconUrl} onChange={(newValue) => update(layerClone => { layerClone.iconUrl = newValue || '' })} />
-                </div>
+            <div className={styles.colorPicker}>
+                <label>Default path/area color: <span className={styles.color} style={{backgroundColor: removeAlpha(layer.color) }} /></label>
+                <SliderPicker color={layer.color} onChange={(newValue) => update(clone => { clone.color = `${newValue.hex}33` })} />
+            </div>
 
-                <div className={styles.colorPicker}>
-                    <label>Default path/area color: <span className={styles.color} style={{backgroundColor: removeAlpha(layer.color) }} /></label>
-                    <SliderPicker color={layer.color} onChange={(newValue) => update(clone => { clone.color = `${newValue.hex}33` })} />
-                </div>
-
-                <div className={styles.buttons}>
-                    <button onClick={submit} disabled={!validate()}>
-                        <FontAwesomeIcon icon={faCheck} />
-                        OK
-                    </button>
-                    { onDelete ? <button onClick={onDelete}>
-                        <FontAwesomeIcon icon={faTrash} />
-                        Delete
-                    </button> : null }
-                </div>
+            <div className={styles.buttons}>
+                <button onClick={submit} disabled={!validate()}>
+                    <FontAwesomeIcon icon={faCheck} />
+                    OK
+                </button>
+                { onDelete ? <button onClick={onDelete}>
+                    <FontAwesomeIcon icon={faTrash} />
+                    Delete
+                </button> : null }
             </div>
         </div>
     )

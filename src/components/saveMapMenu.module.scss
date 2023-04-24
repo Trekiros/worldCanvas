@@ -1,0 +1,26 @@
+.saveMapMenu {
+    display: flex;
+    flex-direction: row;
+
+    button {
+        flex: 1 1 0;
+        display: flex;
+        flex-direction: row!important;
+        align-items: center;
+        justify-content: center;
+
+        svg { width: 16px!important; margin-right: 1em!important }
+    }
+
+    .spinner {
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 100%;
+        width: 100%;
+        background: #0005;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+}

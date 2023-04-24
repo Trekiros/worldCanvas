@@ -2,6 +2,7 @@ import { ReactNode, createContext } from "react"
 import { MapModel } from "./map"
 
 export const defaultMap: MapModel = {
+    id: 135479, 
     name: "Faerun",
     imageUrl: "/faerun.jpg",
     layers: [

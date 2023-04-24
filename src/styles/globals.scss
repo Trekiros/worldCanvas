@@ -40,3 +40,15 @@ html, body {
     transform: rotate(45deg)!important;
   } 
 }
+
+.uploader__modal {
+  background: #433!important;
+  border-radius: 4px!important;
+  color: white!important;
+
+  label {
+    background: #fff1!important;
+    color: white!important;
+    border: none!important;
+  }
+}

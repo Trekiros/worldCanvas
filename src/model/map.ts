@@ -1,56 +1,75 @@
-export type MapModel = {
-    name: string,
-    imageUrl: string,
-    layers: LayerModel[],
-}
+import { z } from "zod";
 
-export type LayerModel = {
-    id: number,
-    name: string,
+const Color = z.string().min(4).max(9).startsWith('#')
+const URL = z.string().max(256).endsWith('.png')
+    .or(z.string().max(256).endsWith('.jpg'))
+    .or(z.string().max(256).endsWith('svg'))
+    .or(z.string().max(256).endsWith('.webp'))
+const Point = z.object({
+    x: z.number(),
+    y: z.number(),
+})
+
+const Marker = z.object({
+    id: z.number(),
+    name: z.string(),
+    description: z.string(),
+    x: z.number(), 
+    y: z.number(),
+    iconUrl: z.string().url().optional(), // Default: layer.iconUrl
+})
+
+const Path = z.object({
+    id: z.number(),
+    name: z.string(),
+    points: z.array(Point),
+    color: Color.optional(), // Default: layer.color
+})
+
+const Area = z.object({
+    id: z.number(),
+    name: z.string(),
+    points: z.array(Point),
+    color: Color.optional(), // Default: layer.color
+})
+
+const Layer = z.object({
+    id: z.number(),
+    name: z.string().max(128),
 
     // Properties
-    imageUrl?: string, // Does the layer include a map variant?
+    imageUrl: URL.optional(), // Does the layer include a map variant?
 
     // Permissions
-    visible?: boolean,
-    playerPermissions?: 'see' | 'edit',
+    visible: z.boolean().optional(),
+    playerPermissions: z.enum(['see', 'edit']).optional(),
 
     // Min/Max zoom after which elements on this layer become visible.
-    minZoom?: number,
-    maxZoom?: number,
+    minZoom: z.number().optional(),
+    maxZoom: z.number().optional(),
 
     // Defaults for all markers/areas of this layer
-    iconUrl: string,
-    color: string,
+    iconUrl: URL,
+    color: Color,
     
-    markers: MarkerModel[],
-    paths: PathModel[],
-    areas: AreaModel[],
-}
+    markers: z.array(Marker),
+    paths: z.array(Path),
+    areas: z.array(Area),    
+})
 
-export type MarkerModel = {
-    id: number,
-    name: string,
-    description: string,
-    x: number, y: number,
-    iconUrl?: string, // Default: layer.iconUrl
-}
+const Map = z.object({
+    id: z.number(),
+    name: z.string().max(128),
+    imageUrl: URL,
+    layers: z.array(Layer),
+})
 
-export type PathModel = {
-    id: number,
-    layerId: number,
-    name: string,
-    points: {x: number, y: number}[],
-    color?: string, // Default: layer.color
-}
 
-export type AreaModel = {
-    id: number,
-    layerId: number,
-    name: string,
-    points: {x: number, y: number}[],
-    color?: string, // Default: layer.color
-}
+export type MapModel = z.infer<typeof Map>
+export type LayerModel = z.infer<typeof Layer>
+export type MarkerModel = z.infer<typeof Marker>
+export type PathModel = z.infer<typeof Path>
+export type AreaModel = z.infer<typeof Area>
 
 export function getLayer(map: MapModel, layerId: number) {
     return map.layers.find(layer => (layer.id === layerId))
@@ -66,4 +85,14 @@ export function getPath(map: MapModel, layerId: number, pathId: number) {
 
 export function getArea(map: MapModel, layerId: number, areaId: number) {
     return (getLayer(map, layerId)?.areas || []).find(area => (area.id === areaId))
+}
+
+export function validateMap(obj: any): obj is MapModel {
+    try {
+        Map.parse(obj)
+        return true
+    } catch (e) {
+        console.error(e)
+        return false
+    }
 }
