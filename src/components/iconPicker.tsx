@@ -47,7 +47,8 @@ const IconPicker:FC<PropType> = ({ value, onChange, nullable }) => {
                 ) : null }
                 { (iconType === 'icon') ? (
                     iconNames.map(iconName => (
-                        <button 
+                        <button
+                            key={iconName} 
                             className={`${styles.icon} ${`/icons/${iconName}.svg` === value ? styles.activeBtn : ''}`} 
                             onClick={() => onChange(`/icons/${iconName}.svg`)}
                         >
