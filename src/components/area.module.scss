@@ -1,0 +1,87 @@
+.area {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+
+    svg {
+        width: 100%;
+        height: 100%;
+
+        path { opacity: 0.5; pointer-events: painted; }
+
+        polygon { opacity: 0.2; pointer-events: painted; }
+    }
+
+    .handleContainer {
+        position: absolute;
+        transform: translate(-50%, -50%);
+
+        .handle {
+            pointer-events: all;
+            width: 30px;
+            height: 30px;
+            border-radius: 100%;
+            box-shadow: 0 0 0 4px #0008 inset;
+            opacity: 0.8;
+
+            &:hover { opacity: 1 }
+        }
+    }
+
+    .areaName {
+        display: none;
+        pointer-events: none;
+        position: absolute;
+        transform: translate(-50%, -50%);
+
+        .name {
+            color: white;
+            font-size: 16pt;
+            border-radius: 4px;
+            font-weight: bold;
+            text-shadow: 0 0 10px black;
+        }
+    }
+    
+    &.editing {
+        pointer-events: all;
+
+        path { opacity: 1 }
+    }
+    
+    &.hovering {
+        path { opacity: 0.7 }
+        polygon { opacity: 0.3; pointer-events: none }
+        .areaName { display: block }
+    }
+}
+
+.areaMenu {
+    width: 300px;
+    display: flex;
+    flex-direction: row;
+
+    button {
+        flex: 1 1 0;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        padding: 1em;
+        svg { width: 22px; margin-bottom: 0.5em }
+
+        &:disabled {
+            background-color: #fff0!important;
+            color: #aaa;
+        }
+    }
+}
+
+.areaInfo {
+    width: 300px;
+
+    h3 { margin: 0 }
+}

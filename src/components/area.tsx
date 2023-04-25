@@ -1,27 +1,29 @@
-import { LayerModel, PathModel } from "@/model/map"
+import { AreaModel, LayerModel } from "@/model/map"
 import { FC, MouseEvent as ReactMouseEvent, useContext, useEffect, useRef, useState } from "react"
-import styles from './path.module.scss'
+import styles from './area.module.scss'
 import { PopinContext } from "@/model/context"
-import PathForm from "./pathForm"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faCog, faPlus, faTrash } from "@fortawesome/free-solid-svg-icons"
+import AreaForm from "./areaForm"
+import { KeepScale } from "react-zoom-pan-pinch"
 
 type PropType = {
     layer: LayerModel,
-    path: PathModel,
-    onUpdate: (newValue: PathModel) => void,
+    area: AreaModel,
+    onUpdate: (newValue: AreaModel) => void,
 }
 
-const Path:FC<PropType> = ({ layer, path, onUpdate }) => {
+const Area:FC<PropType> = ({ layer, area, onUpdate }) => {
     const {popin, setPopin} = useContext(PopinContext)
-    const [points, setPoints] = useState(path.points)
+    const [points, setPoints] = useState(area.points)
     const [editing, setEditing] = useState(false)
     const [dragging, setDragging] = useState<number | null>(null)
+    const [hovering, setHovering] = useState(false)
     const ref = useRef<HTMLDivElement>(null)
 
     useEffect(() => {
-        setPoints(path.points)
-    }, [path])
+        setPoints(area.points)
+    }, [area])
 
     // This is to account for the map's aspect ratio
     const scaleX = !ref.current ? 1 : (
@@ -69,12 +71,12 @@ const Path:FC<PropType> = ({ layer, path, onUpdate }) => {
 
         function onMouseUp(e: MouseEvent) {
             const {x, y} = calculateMapCoords(e.clientX, e.clientY)
-            const pathClone: PathModel = JSON.parse(JSON.stringify(path))
-            const point = pathClone.points[pointIndex]
+            const areaClone: AreaModel = JSON.parse(JSON.stringify(area))
+            const point = areaClone.points[pointIndex]
             point.x = x
             point.y = y
     
-            onUpdate(pathClone)
+            onUpdate(areaClone)
     
             // setDragging(null)
             window.removeEventListener('mousemove', onMouseMove)
@@ -93,12 +95,12 @@ const Path:FC<PropType> = ({ layer, path, onUpdate }) => {
         }
 
         const {x, y} = calculateMapCoords(e.clientX, e.clientY)
-        const pathClone: PathModel = JSON.parse(JSON.stringify(path))
-        const point = pathClone.points[dragging]
+        const areaClone: AreaModel = JSON.parse(JSON.stringify(area))
+        const point = areaClone.points[dragging]
         point.x = x
         point.y = y
 
-        onUpdate(pathClone)
+        onUpdate(areaClone)
         setDragging(null)
     }
 
@@ -112,14 +114,14 @@ const Path:FC<PropType> = ({ layer, path, onUpdate }) => {
             x, y,
             yOffset: true,
             content: (
-                <div className={styles.pathMenu}>
+                <div className={styles.areaMenu}>
                     <button onClick={() => addPoint(x, y)}>
                         <FontAwesomeIcon icon={faPlus} />
                         Add Point
                     </button>
-                    <button onClick={() => editPath(x, y)}>
+                    <button onClick={() => editArea(x, y)}>
                         <FontAwesomeIcon icon={faCog} />
-                        Path Settings
+                        Area Settings
                     </button>
                 </div>
             )
@@ -135,14 +137,14 @@ const Path:FC<PropType> = ({ layer, path, onUpdate }) => {
             x, y,
             yOffset: true,
             content: (
-                <div className={styles.pathMenu}>
-                    <button onClick={() => deletePoint(pointIndex)} disabled={points.length <= 2}>
+                <div className={styles.areaMenu}>
+                    <button onClick={() => deletePoint(pointIndex)} disabled={points.length <= 3}>
                         <FontAwesomeIcon icon={faTrash} />
                         Delete Point
                     </button>
-                    <button onClick={() => editPath(x, y)}>
+                    <button onClick={() => editArea(x, y)}>
                         <FontAwesomeIcon icon={faCog} />
-                        Path Settings
+                        Area Settings
                     </button>
                 </div>
             )
@@ -152,16 +154,15 @@ const Path:FC<PropType> = ({ layer, path, onUpdate }) => {
     function onPathHover(e: ReactMouseEvent) {
         if (editing) return
         if (popin) return
-
         
         const {x, y} = calculateMapCoords(e.clientX, e.clientY)
         setPopin({
-            id: path.id,
+            id: area.id,
             x, y,
             content: (
-                <div className={styles.pathInfo}>
-                    <h3>{path.name}</h3>
-                    <div className={styles.description}>{path.description}</div>
+                <div className={styles.areaInfo}>
+                    <h3>{area.name}</h3>
+                    <div className={styles.description}>{area.description}</div>
                 </div>
             ),
             yOffset: true,
@@ -171,18 +172,57 @@ const Path:FC<PropType> = ({ layer, path, onUpdate }) => {
     function onPathHoverEnd() {
         if (editing) return
         if (!popin) return
-        if (popin.id !== path.id) return
+        if (popin.id !== area.id) return
 
         setPopin(null)
     }
 
-    function editPath(x: number, y: number) {
+    function onPolygonHover() {
+        setHovering(true)
+
+        function handleMouse(e: MouseEvent) {
+            const {x, y} = calculateMapCoords(e.clientX, e.clientY)
+
+            // Algorithm: 
+            const isInside = (points.map((point, index) => [point, points[(index+1) % points.length]] as const) // get all segments
+                .filter(([p1, p2]) => { // Draw a line from the mouse which goes to the right. Filter segments which intersect with this line
+                    // If the mouse isn't vertically within the segment, return early
+                    const yIntersects = (Math.min(p1.y, p2.y) <= y) && (Math.max(p1.y, p2.y) >= y)
+                    if (!yIntersects) return false
+
+                    // special case where x1 === x2, which would cause math errors in the formulas below
+                    if (p1.x === p2.x) {
+                        return (p1.x >= x)
+                    }
+
+                    // calculating the segment's formula: y = ax + b
+                    const a = (p2.y - p1.y)/(p2.x - p1.x)
+                    const b = p1.y - a * p1.x
+
+                    // find the x projection of the mouse onto the segment
+                    const intersectionX = (y - b)/a
+
+                    // Only counts intersections to the right of the mouse
+                    return intersectionX > x
+                })
+                .length %2) === 1 // If the number of intersections is odd, the point is inside the polygon. Otherwise, it's outside.
+
+            if (isInside) return
+            
+            setHovering(false)
+            window.removeEventListener('mousemove', handleMouse)
+        }
+
+        window.addEventListener('mousemove', handleMouse)
+    }
+
+    function editArea(x: number, y: number) {
         setPopin({
             id: Date.now(),
             x, y,
             yOffset: true,
             content: (
-                <PathForm layer={layer} initialValue={path} onSubmit={onUpdate} />
+                <AreaForm layer={layer} initialValue={area} onSubmit={onUpdate} />
             )
         })
     }
@@ -190,10 +230,8 @@ const Path:FC<PropType> = ({ layer, path, onUpdate }) => {
     function addPoint(x: number, y: number) {
         if (points.length < 2) return
 
-        const insertIndex = points.slice(0, -1) // All points except the last one
-            .map((p1, index) => { // Find distance from each segment of the path
-                const p2 = points[index + 1]
-
+        const insertIndex = points.map((point, index) => [point, points[(index + 1) % points.length]] as const) // All points except the last one
+            .map(([p1, p2], index) => { // Find distance from each segment of the path
                 // src: https://en.wikipedia.org/wiki/Distance_from_a_point_to_a_line
                 const distance = Math.abs((p2.x - p1.x) * (p1.y - y) - (p1.x - x) * (p2.y - p1.y))
                     / Math.sqrt(Math.pow(p2.x - p1.x, 2) + Math.pow(p2.y - p1.y, 2))
@@ -206,52 +244,68 @@ const Path:FC<PropType> = ({ layer, path, onUpdate }) => {
         // Insert the point at that location
         const pointsClone = [...points]
         pointsClone.splice(insertIndex, 0, {x, y})
-        onUpdate({...path, points: pointsClone})
+        onUpdate({...area, points: pointsClone})
     }
 
     function deletePoint(pointIndex: number) {
-        if (points.length <= 2) return
+        if (points.length <= 3) return
         if (pointIndex < 0) return
         if (pointIndex >= points.length) return
 
-        const pathClone: PathModel = JSON.parse(JSON.stringify(path))
-        pathClone.points.splice(pointIndex, 1)
-        onUpdate(pathClone)
+        const areaClone: AreaModel = JSON.parse(JSON.stringify(area))
+        areaClone.points.splice(pointIndex, 1)
+        onUpdate(areaClone)
         setPopin(null)
     }
 
+    const center = points.reduce((p1, p2) => ({
+        x: p1.x + p2.x, 
+        y: p1.y + p2.y,
+    }))
+    center.x /= points.length
+    center.y /= points.length
+
     return (
-        <div className={`${styles.path} ${editing ? styles.editing : ''}`} ref={ref} onClick={onOverlayClick} onMouseDown={(e) => {e.preventDefault(); e.stopPropagation()}}>
+        <div className={`${styles.area} ${editing ? styles.editing : ''} ${hovering ? styles.hovering : ''}`} ref={ref} onClick={onOverlayClick}>
             <svg viewBox={`0 0 ${scaleX*100} 100`}>
-                { (points.length < 2) ? null : (
-                    <path
-                        d={points.map(({x, y}, index) => `${index ? 'L' : 'M'}${toCoords(x, y)}`).join(' ')}
-                        stroke={path.color || layer.color}
-                        strokeWidth={path.strokeWidth / 10}
-                        fill="none" 
-                        strokeDasharray={
-                            (path.strokeType === 'dashed') ? "2 1" 
-                            : (path.strokeType === 'dotted') ? `${path.strokeWidth/10} ${path.strokeWidth/10}`
-                            : undefined
-                        }
-                        onClick={onPathClick}
-                        onMouseEnter={onPathHover}
-                        onMouseLeave={onPathHoverEnd}
-                    />
-                )}
+                    { (points.length < 3) ? null : (
+                        <>
+                            <polygon 
+                                points={points.map(({x, y}) => toCoords(x, y)).join(',')} 
+                                fill={area.color || layer.color}
+                                onMouseEnter={onPolygonHover}
+                            />
+                            <path
+                                d={[...points, points[0]].map(({x, y}, index) => `${index ? 'L' : 'M'}${toCoords(x, y)}`).join(' ')}
+                                stroke={area.color || layer.color}
+                                fill={'none'}
+                                strokeWidth={0.2}
+                                onClick={onPathClick}
+                                onMouseEnter={onPathHover}
+                                onMouseLeave={onPathHoverEnd}
+                            />
+                        </>
+                    )}
             </svg>
             { !editing ? null : points.map((point, index) => (
                 <div key={index} className={styles.handleContainer} style={{ left: `${point.x}%`, top: `${point.y}%`}}>
                         <div 
                             className={`${styles.handle} panDisabled`} 
-                            style={{ backgroundColor: path.color || layer.color }}
+                            style={{ backgroundColor: area.color || layer.color }}
                             onClick={(e) => onHandleClick(index, e)}
                             onMouseDown={(e) => onDragStart(index)}
                         />
                 </div>
             ))}
+            <div className={styles.areaName} style={{left: `${center.x}%`, top: `${center.y}%`}}>
+                <KeepScale>
+                    <div className={styles.name}>
+                        {area.name}
+                    </div>
+                </KeepScale>
+            </div>
         </div>
     )
 }
 
-export default Path
+export default Area

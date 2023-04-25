@@ -1,9 +1,10 @@
-import { LayerModel, MapModel, MarkerModel, PathModel, getMarker } from "@/model/map"
+import { AreaModel, LayerModel, MapModel, MarkerModel, PathModel, getMarker } from "@/model/map"
 import { FC, useContext, useEffect, useState } from "react"
 import Marker from "./marker"
 import styles from './layer.module.scss'
 import { PopinContext } from "@/model/context"
 import Path from "./path"
+import Area from "./area"
 
 type PropType = {
     layer: LayerModel,
@@ -49,6 +50,20 @@ const Layer: FC<PropType> = ({ layer, currentZoom, onUpdate }) => {
         path.strokeType = newValue.strokeType
         path.strokeWidth = newValue.strokeWidth
         path.points = newValue.points
+
+        onUpdate(layerClone)
+    }
+
+    function onAreaUpdated(newValue: AreaModel) {
+        const layerClone: LayerModel = JSON.parse(JSON.stringify(layer))
+
+        const area = layerClone.areas.find(a => (a.id === newValue.id))
+        if (!area) return
+
+        area.name = newValue.name
+        area.description = newValue.description
+        area.color = newValue.color
+        area.points = newValue.points
 
         onUpdate(layerClone)
     }
@@ -118,7 +133,14 @@ const Layer: FC<PropType> = ({ layer, currentZoom, onUpdate }) => {
             )) }
                         
             { /* AREAS */}
-            { /* TODO */}
+            { layer.areas.map((area) => (
+                <Area
+                    key={area.id}
+                    layer={layer}
+                    area={area}
+                    onUpdate={onAreaUpdated}
+                />
+            )) }
         </div>
     )
 }

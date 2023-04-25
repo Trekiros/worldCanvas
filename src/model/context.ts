@@ -34,7 +34,20 @@ export const defaultMap: MapModel = {
             strokeType: 'dotted',
           }
         ],
-        areas: [],
+        areas: [
+          {
+            id: 984626,
+            name: 'Amn',
+            description: 'That one country that people live in I guess?',
+            points: [
+              {x: 60, y: 20},
+              {x: 80, y: 40},
+              {x: 60, y: 60},
+              {x: 40, y: 40},
+            ],
+            color: '#f00',
+          }
+        ],
       },
       {
         id: 45885,

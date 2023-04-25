@@ -31,7 +31,8 @@ const Path = z.object({
 
 const Area = z.object({
     id: z.number(),
-    name: z.string(),
+    name: z.string().max(128),
+    description: z.string(),
     points: z.array(Point),
     color: Color.optional(), // Default: layer.color
 })
