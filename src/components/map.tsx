@@ -79,7 +79,7 @@ const Map: FC<PropType> = ({ visibleLayers, activeLayer }) => {
         )
 
         layer.paths.push(path)
-        setMap(map)
+        setMap(newMap)
         setPopin(null)
     }
 
