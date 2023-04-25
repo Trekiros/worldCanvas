@@ -1,5 +1,4 @@
 import { FC, MouseEvent as ReactMouseEvent, useEffect, useRef, useState } from "react"
-import { KeepScale } from "react-zoom-pan-pinch";
 import styles from './draggingMarker.module.scss'
 
 type PropType = {
@@ -38,9 +37,7 @@ const DraggingMarker: FC<PropType> = ({ iconUrl, onMove }) => {
     return (
         <button ref={overlay} className={styles.overlay} onClick={onClick}>
             <div style={getCoords()} className={styles.marker}>
-                <KeepScale>
-                    <img src={iconUrl}/>
-                </KeepScale>
+                <img src={iconUrl}/>
             </div>
         </button>
     )

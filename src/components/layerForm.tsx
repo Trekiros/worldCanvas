@@ -85,6 +85,19 @@ const LayerForm: FC<PropType> = ({ onSubmit, onDelete, initialValue}) => {
                 onSubmit={submit}
             />
 
+            <div className={styles.mapOverlay}>
+                <label>Image Overlay (optional)</label>
+                <input 
+                    type="text"
+                    placeholder="https://..."
+                    value={layer.imageUrl}
+                    onChange={(e) => update((l) => { l.imageUrl = e.target.value })}
+                />
+                { !layer.imageUrl ? null : (
+                    <img src={layer.imageUrl} />
+                )}
+            </div>
+
             <div className={styles.visibilityRange}>
                 <label>Zoom: visible from {layer.minZoom || 20}% to {layer.maxZoom || 800}%</label>
                 <Slider 

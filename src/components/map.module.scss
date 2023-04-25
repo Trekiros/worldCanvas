@@ -17,6 +17,11 @@
         width: 100%;
     }
 
+    .mapOverlay {
+        position: fixed;
+        pointer-events: none;
+    }
+
     .alert {
         position: fixed;
         top: 1em;

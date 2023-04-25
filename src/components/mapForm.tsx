@@ -18,7 +18,7 @@ function defaultMap(): MapModel {
             {
                 id: Date.now(),
                 name: 'Markers',
-                color: '#fff3',
+                color: '#ffffff',
                 iconUrl: '/icons/house.svg',
                 markers: [],
                 paths: [],

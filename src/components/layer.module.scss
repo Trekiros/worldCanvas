@@ -1,26 +1,8 @@
-.layer {
-    animation-duration: 0.2s;
-    animation-timing-function: ease;
-    animation-fill-mode: forwards;
-    animation-iteration-count: 1;
-
-    &.visible {
-        animation-name: fadeIn;
-        
-        @keyframes fadeIn {
-            0% { opacity: 0; visibility: hidden; display:none; }
-            1% { visibility: visible; display: inherit; }
-            100% { opacity: 1; visibility: visible; display: inherit }
-        }
-    }
-
-    &.hidden {
-        animation-name: fadeOut;
-
-        @keyframes fadeOut {
-            0% { opacity: 1; visibility: visible; display: inherit }
-            99% { visibility: visible; display: inherit; }
-            100% { opacity: 0; visibility: hidden; display:none; }
-        }
-    }
+.imageOverlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
 }

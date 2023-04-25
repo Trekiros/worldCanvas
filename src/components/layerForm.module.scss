@@ -27,4 +27,10 @@
         border-radius: 4px;
         display: inline-block;
     }
+
+    .mapOverlay {
+        img {
+            width: 100%!important;
+        }
+    }
 }

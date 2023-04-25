@@ -5,7 +5,6 @@ import { PopinContext } from "@/model/context"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faCog, faPlus, faTrash } from "@fortawesome/free-solid-svg-icons"
 import AreaForm from "./areaForm"
-import { KeepScale } from "react-zoom-pan-pinch"
 
 type PropType = {
     layer: LayerModel,
@@ -320,16 +319,14 @@ const Area:FC<PropType> = ({ layer, area, onUpdate, onDelete }) => {
                 </div>
             ))}
             <div className={styles.areaName} style={{left: `${center.x}%`, top: `${center.y}%`}}>
-                <KeepScale>
-                    <div 
-                        className={styles.name}
-                        onMouseEnter={onNameHover}
-                        onMouseLeave={onNameHoverEnd}
-                        onMouseDown={onNameClick}
-                    >
-                        {area.name}
-                    </div>
-                </KeepScale>
+                <div 
+                    className={styles.name}
+                    onMouseEnter={onNameHover}
+                    onMouseLeave={onNameHoverEnd}
+                    onMouseDown={onNameClick}
+                >
+                    {area.name}
+                </div>
             </div>
         </div>
     )

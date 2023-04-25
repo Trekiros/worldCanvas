@@ -23,14 +23,14 @@ const ClickableImg: FC<PropType> = ({src, onClick, children}) => {
     }
 
     return (
-        <div className={styles.clickableImg} id='map'>
+        <div className={styles.clickableImg}>
             <button
                 onMouseDown={onMouseDown}
                 onMouseUp={onMouseUp}
                 onMouseMove={onMouseMove}
                 className={styles.imageBtn}
             >
-                <img src={src} className={styles.image} />
+                <img src={src} className={styles.image} id='mapImage' />
             </button>
             <div className={styles.overlay}>
                 <div onMouseDown={(e) => e.stopPropagation()}>

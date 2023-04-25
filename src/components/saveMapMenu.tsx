@@ -13,30 +13,45 @@ type PropType = {
 const SaveMapMenu:FC<PropType> = ({ map }) => {
     const [spinner, setSpinner] = useState(false)
 
+    // TODO: fixme. Since the refactor of the map overlay, this has stopped working. This is not a very useful feature so I'm okay leaving it broken for now.
     async function exportImage() {
-        const mapElem = document.getElementById('map')
-        if (!mapElem) return
+        const mapElem = document.getElementById('mapImage')
+        const overlayElem = document.getElementById('mapOverlay')
+        if (!mapElem || !overlayElem) return
         
         setSpinner(true)
-        const imgString = await domtoimage.toPng(mapElem)
+        const hitbox = mapElem.getBoundingClientRect()
+        const mapPng = await domtoimage.toPng(mapElem, {height: hitbox.height, width: hitbox.width})
+        const overlayPng = await domtoimage.toPng(overlayElem, {height: hitbox.height, width: hitbox.width})
 
-        const img = new Image()
-        img.crossOrigin = 'anonymous'
-        img.src = imgString
-        img.onload = () => {
-            // create Canvas
-            const canvas = document.createElement('canvas')
-            const ctx = canvas.getContext('2d')!
-            canvas.width = img.width
-            canvas.height = img.height
-            ctx.drawImage(img, 0, 0)
-            // create a tag
-            const a = document.createElement('a')
-            a.download = `${map.name}.png`
-            a.href = canvas.toDataURL('image/png')
-            a.click()
-            setSpinner(false)
-        }
+        const mapImg = new Image()
+        mapImg.crossOrigin = 'anonymous'
+        mapImg.src = mapPng
+        
+        const overlayImg = new Image()
+        overlayImg.crossOrigin = 'anonymous'
+        overlayImg.src = overlayPng
+
+        const promises = [
+            new Promise(resolve => { mapImg.onload = resolve }),
+            new Promise(resolve => { overlayImg.onload = resolve }),
+        ]
+
+        await Promise.all(promises)
+
+        const canvas = document.createElement('canvas')
+        const ctx = canvas.getContext('2d')!
+        canvas.width = mapImg.width
+        canvas.height = mapImg.height
+        ctx.drawImage(mapImg, 0, 0)
+        ctx.drawImage(overlayImg, 0, 0)
+
+        // create a tag
+        const a = document.createElement('a')
+        a.download = `${map.name}.png`
+        a.href = canvas.toDataURL('image/png')
+        a.click()
+        setSpinner(false)
     }
 
     function save() {

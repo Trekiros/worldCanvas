@@ -1,4 +1,4 @@
-import { FC, useContext, useRef, useState } from "react"
+import { FC, useContext, useEffect, useRef, useState } from "react"
 import { AreaModel, LayerModel, MapModel, MarkerModel, PathModel, getLayer, getMarker } from "@/model/map"
 
 import styles from './map.module.scss'
@@ -8,9 +8,10 @@ import MarkerMenu from "./markerMenu";
 import { MapContext, PopinContext, PopinDescription } from "@/model/context";
 import Popin from "./popin";
 import CreateMenu from "./createMenu";
-import Layer from "./layer";
+import { LayerImage, LayerMarkers, LayerPaths, LayerAreas } from "./layer";
 import PathForm from "./pathForm";
 import AreaForm from "./areaForm";
+import { useFrame } from "@/model/state";
 
 type PropType = {
     visibleLayers: number[],
@@ -26,6 +27,20 @@ const Map: FC<PropType> = ({ visibleLayers, activeLayer }) => {
     const [popin, setPopin] = useState<PopinDescription>(null)
     const [zoom, setZoom] = useState(100)
     const mapRef = useRef<HTMLDivElement>(null)
+    
+    useFrame(() => {
+        const mapImage = document.getElementById('mapImage')
+        if (!mapImage) return
+
+        const mapOverlay = document.getElementById('mapOverlay')
+        if(!mapOverlay) return
+
+        const hitbox = mapImage.getBoundingClientRect()
+        mapOverlay.style.top = `${hitbox.top}px`
+        mapOverlay.style.left = `${hitbox.left}px`
+        mapOverlay.style.width = `${hitbox.width}px`
+        mapOverlay.style.height = `${hitbox.height}px`
+    })
 
     function calculateMapCoords(clientX: number, clientY: number) {
         if (!mapRef.current) throw new Error('map not initialized yet')
@@ -116,33 +131,52 @@ const Map: FC<PropType> = ({ visibleLayers, activeLayer }) => {
     }
 
     return (
-        <div className={styles.mapContainer}>
-            <TransformWrapper centerOnInit={true} minScale={0.2} doubleClick={{disabled: true}} onZoomStop={(e) => onZoom(e.state.scale)}>
-                <TransformComponent>
-                    {!isImageUrl(map.imageUrl) ? (
-                        <div className={styles.default}>Import a map</div>
-                    ) : (
-                        <div ref={mapRef}>
-                            <ClickableImg src={map.imageUrl} onClick={onMapClick}>
-                                <PopinContext.Provider value={{popin, setPopin, calculateMapCoords}}>
-                                    { map.layers.map(layer => (
-                                        <Layer key={layer.id} layer={layer} onUpdate={onLayerUpdated} currentZoom={zoom} />
-                                    )) }
+        <PopinContext.Provider value={{popin, setPopin, calculateMapCoords}}>
+            <div className={styles.mapContainer} id='map'>
+                <TransformWrapper centerOnInit={true} minScale={0.2} doubleClick={{disabled: true}} onZoomStop={(e) => onZoom(e.state.scale)}>
+                    <TransformComponent>
+                        {!isImageUrl(map.imageUrl) ? (
+                            <div className={styles.default}>Import a map</div>
+                        ) : (
+                            <div ref={mapRef}>
+                                <ClickableImg src={map.imageUrl} onClick={onMapClick}></ClickableImg>
+                            </div>
+                        )}
+                    </TransformComponent>
+                </TransformWrapper>
+            
+                <div className={styles.mapOverlay} id="mapOverlay">
+                    {/* IMAGE OVERLAYS */}
+                    { map.layers.map(layer => (
+                        <LayerImage key={layer.id} layer={layer} currentZoom={zoom} />
+                    )) }
 
-                                    { !popin ? null : (
-                                        <Popin x={popin.x} y={popin.y} key={popin.id} yOffset={popin.yOffset}>
-                                            {popin.content}
-                                        </Popin>
-                                    )}
-                                </PopinContext.Provider>
-                            </ClickableImg>
-                        </div>
+                    {/* AREAS */}
+                    { map.layers.map(layer => (
+                        <LayerAreas key={layer.id} layer={layer} currentZoom={zoom} onUpdate={onLayerUpdated} />
+                    )) }
+
+                    {/* PATHS */}
+                    { map.layers.map(layer => (
+                        <LayerPaths key={layer.id} layer={layer} currentZoom={zoom} onUpdate={onLayerUpdated} />
+                    )) }
+
+                    {/* MARKERS */}
+                    { map.layers.map(layer => (
+                        <LayerMarkers key={layer.id} layer={layer} currentZoom={zoom} onUpdate={onLayerUpdated} />
+                    )) }
+
+                    {/* POPIN */}
+                    { !popin ? null : (
+                        <Popin x={popin.x} y={popin.y} key={popin.id} yOffset={popin.yOffset}>
+                            {popin.content}
+                        </Popin>
                     )}
-                </TransformComponent>
-            </TransformWrapper>
-
-            <div className={styles.alert} key={zoom}>Zoom: {zoom}%</div>
-        </div>
+                </div>
+                
+                <div className={styles.alert} key={zoom}>Zoom: {zoom}%</div>
+            </div>
+        </PopinContext.Provider>
     )
 }
 

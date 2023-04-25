@@ -26,3 +26,18 @@ export function useCalculatedProp<T>(dependencies: DependencyList, calculateProp
     }, dependencies)
     return state
 }
+
+export function useFrame(callback: () => void, dependencies?: DependencyList) {
+    const [running, setRunning] = useState(true)
+    
+    function runFrame() {
+        callback()
+        if(running) requestAnimationFrame(runFrame)
+    }
+    
+    useEffect(() => {
+        requestAnimationFrame(runFrame)
+
+        return () => setRunning(false)
+    }, dependencies || [])
+}

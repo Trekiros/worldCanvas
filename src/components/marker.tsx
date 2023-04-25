@@ -1,5 +1,4 @@
 import { FC, useContext, useState } from 'react'
-import { KeepScale } from "react-zoom-pan-pinch";
 import { LayerModel, MarkerModel } from '@/model/map'
 import styles from './marker.module.scss'
 import MarkerMenu from './markerMenu';
@@ -76,21 +75,19 @@ const Marker: FC<PropType> = ({layer, marker, onMarkerUpdated, onMarkerMoved, on
 
     return (
             <div key={marker.id} className={styles.markerContainer} style={{ left: `${marker.x}%`, top: `${marker.y}%` }} >
-                <KeepScale>
-                    <div
-                        className={styles.markerContent}
-                        onClick={updateMarker}
-                        onMouseEnter={hoverStart}
-                        onMouseLeave={hoverEnd}
-                    >
-                        <img
-                            className={styles.icon}
-                            draggable={false}
-                            src={marker.iconUrl || layer.iconUrl}
-                        />
-                        <label>{marker.name}</label>
-                    </div>
-                </KeepScale>
+                <div
+                    className={styles.markerContent}
+                    onClick={updateMarker}
+                    onMouseEnter={hoverStart}
+                    onMouseLeave={hoverEnd}
+                >
+                    <img
+                        className={styles.icon}
+                        draggable={false}
+                        src={marker.iconUrl || layer.iconUrl}
+                    />
+                    <label>{marker.name}</label>
+                </div>
             </div>
     )
 }

@@ -5,6 +5,7 @@ import styles from './layer.module.scss'
 import { PopinContext } from "@/model/context"
 import Path from "./path"
 import Area from "./area"
+import Hideable from "./hideable"
 
 type PropType = {
     layer: LayerModel,
@@ -12,16 +13,25 @@ type PropType = {
     onUpdate: (newValue: LayerModel) => void,
 }
 
-const Layer: FC<PropType> = ({ layer, currentZoom, onUpdate }) => {
+function isVisible(layer: LayerModel, currentZoom: number) {
+    if (!layer.visible) return false
+    if (!layer.minZoom || !layer.maxZoom) return true
+
+    return (layer.minZoom <= currentZoom) && (layer.maxZoom >= currentZoom)
+}
+
+export const LayerImage: FC<Omit<PropType, 'onUpdate'>> = ({ layer, currentZoom }) => {
+    return (
+        <Hideable visible={isVisible(layer, currentZoom)}>
+            { !layer.imageUrl ? null : (
+                <img src={layer.imageUrl} className={styles.imageOverlay} />
+            )}
+        </Hideable>
+    )
+}
+
+export const LayerMarkers: FC<PropType> = ({ layer, currentZoom, onUpdate }) => {
     const {setPopin, calculateMapCoords} = useContext(PopinContext)
-    const [hidden, setHidden] = useState(!layer.visible)
-
-    function isVisible() {
-        if (!layer.visible) return false
-        if (!layer.minZoom || !layer.maxZoom) return true
-
-        return (layer.minZoom <= currentZoom) && (layer.maxZoom >= currentZoom)
-    }
 
     function onMarkerUpdated(newValue: MarkerModel) {
         const layerClone: LayerModel = JSON.parse(JSON.stringify(layer))
@@ -37,53 +47,6 @@ const Layer: FC<PropType> = ({ layer, currentZoom, onUpdate }) => {
 
         onUpdate(layerClone)
         setPopin(null)
-    }
-
-    function onPathUpdated(newValue: PathModel) {
-        const layerClone: LayerModel = JSON.parse(JSON.stringify(layer))
-
-        const path = layerClone.paths.find(p => (p.id === newValue.id))
-        if (!path) return
-
-        path.name = newValue.name
-        path.color = newValue.color
-        path.strokeType = newValue.strokeType
-        path.strokeWidth = newValue.strokeWidth
-        path.points = newValue.points
-
-        onUpdate(layerClone)
-    }
-
-    function onPathDeleted(pathIndex: number) {
-        if (pathIndex < 0) return
-        if (pathIndex >= layer.paths.length) return
-
-        const layerClone: LayerModel = JSON.parse(JSON.stringify(layer))
-        layerClone.paths.splice(pathIndex, 1)
-        onUpdate(layerClone)
-    }
-
-    function onAreaUpdated(newValue: AreaModel) {
-        const layerClone: LayerModel = JSON.parse(JSON.stringify(layer))
-
-        const area = layerClone.areas.find(a => (a.id === newValue.id))
-        if (!area) return
-
-        area.name = newValue.name
-        area.description = newValue.description
-        area.color = newValue.color
-        area.points = newValue.points
-
-        onUpdate(layerClone)
-    }
-
-    function onAreaDeleted(areaIndex: number) {
-        if (areaIndex < 0) return
-        if (areaIndex >= layer.areas.length) return
-
-        const layerClone: LayerModel = JSON.parse(JSON.stringify(layer))
-        layerClone.areas.splice(areaIndex, 1)
-        onUpdate(layerClone)
     }
 
     function onMarkerMoved(markerId: number, clientX: number, clientY: number) {        
@@ -111,24 +74,8 @@ const Layer: FC<PropType> = ({ layer, currentZoom, onUpdate }) => {
         setPopin(null)
     }
 
-    // Unmount if hidden, to save memory
-    useEffect(() => {
-        if (layer.visible) {
-            setHidden(false)
-        }
-
-        if (!layer.visible) {
-            setTimeout(() => {
-                setHidden(true)
-            }, 200)
-        }
-    }, [layer.visible])
-
-    if (hidden) return <></>
-
     return (
-        <div key={layer.id} className={`${styles.layer} ${isVisible() ? styles.visible : styles.hidden}`}>
-            { /* MARKERS */}
+        <Hideable visible={isVisible(layer, currentZoom)}>
             { layer.markers.map((marker) => (
                 <Marker
                     key={marker.id}
@@ -139,8 +86,37 @@ const Layer: FC<PropType> = ({ layer, currentZoom, onUpdate }) => {
                     onMarkerDeleted={() => deleteMarker(marker.id)}
                 />
             )) }
+        </Hideable>
+    )
+}
 
-            { /* PATHS */}
+export const LayerPaths: FC<PropType> = ({ layer, currentZoom, onUpdate }) => {
+    function onPathUpdated(newValue: PathModel) {
+        const layerClone: LayerModel = JSON.parse(JSON.stringify(layer))
+
+        const path = layerClone.paths.find(p => (p.id === newValue.id))
+        if (!path) return
+
+        path.name = newValue.name
+        path.color = newValue.color
+        path.strokeType = newValue.strokeType
+        path.strokeWidth = newValue.strokeWidth
+        path.points = newValue.points
+
+        onUpdate(layerClone)
+    }
+
+    function onPathDeleted(pathIndex: number) {
+        if (pathIndex < 0) return
+        if (pathIndex >= layer.paths.length) return
+
+        const layerClone: LayerModel = JSON.parse(JSON.stringify(layer))
+        layerClone.paths.splice(pathIndex, 1)
+        onUpdate(layerClone)
+    }
+
+    return (
+        <Hideable visible={isVisible(layer, currentZoom)}>
             { layer.paths.map((path, index) => (
                 <Path
                     key={path.id}
@@ -150,8 +126,36 @@ const Layer: FC<PropType> = ({ layer, currentZoom, onUpdate }) => {
                     onDelete={() => onPathDeleted(index)}
                 />
             )) }
-                        
-            { /* AREAS */}
+        </Hideable>
+    )
+}
+
+export const LayerAreas: FC<PropType> = ({ layer, currentZoom, onUpdate }) => {    
+    function onAreaUpdated(newValue: AreaModel) {
+        const layerClone: LayerModel = JSON.parse(JSON.stringify(layer))
+
+        const area = layerClone.areas.find(a => (a.id === newValue.id))
+        if (!area) return
+
+        area.name = newValue.name
+        area.description = newValue.description
+        area.color = newValue.color
+        area.points = newValue.points
+
+        onUpdate(layerClone)
+    }
+
+    function onAreaDeleted(areaIndex: number) {
+        if (areaIndex < 0) return
+        if (areaIndex >= layer.areas.length) return
+
+        const layerClone: LayerModel = JSON.parse(JSON.stringify(layer))
+        layerClone.areas.splice(areaIndex, 1)
+        onUpdate(layerClone)
+    }
+
+    return (
+        <Hideable visible={isVisible(layer, currentZoom)}>
             { layer.areas.map((area, index) => (
                 <Area
                     key={area.id}
@@ -161,8 +165,6 @@ const Layer: FC<PropType> = ({ layer, currentZoom, onUpdate }) => {
                     onDelete={() => onAreaDeleted(index)}
                 />
             )) }
-        </div>
+        </Hideable>
     )
 }
-
-export default Layer

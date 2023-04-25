@@ -10,6 +10,7 @@
     align-items: center;
     position: relative;
     transition: margin-left 0.3s;
+    z-index: 1;
 
     &.hidden { margin-left: -$sidebar-size }
 

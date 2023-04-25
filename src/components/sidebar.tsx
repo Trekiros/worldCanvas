@@ -115,9 +115,22 @@ const Sidebar: FC<PropType> = ({ activeLayer, setActiveLayer }) => {
     }
 
     function saveMap() {
-        setModal(
+        // TODO Fixme.
+        /*setModal(
             <SaveMapMenu map={map} />
-        )
+        )*/
+
+        const file = new Blob([JSON.stringify(map)], {type: 'json'})
+        const a = document.createElement("a")
+        const url = URL.createObjectURL(file)
+        a.href = url
+        a.download = `${map.name}.json`
+        document.body.appendChild(a)
+        a.click()
+        setTimeout(() => {
+            document.body.removeChild(a)
+            window.URL.revokeObjectURL(url)  
+        }, 0)
     }
 
     function openMap() {
