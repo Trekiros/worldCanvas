@@ -1,5 +1,5 @@
 import { FC, useContext, useRef, useState } from "react"
-import { LayerModel, MapModel, MarkerModel, getLayer, getMarker } from "@/model/map"
+import { LayerModel, MapModel, MarkerModel, PathModel, getLayer, getMarker } from "@/model/map"
 
 import styles from './map.module.scss'
 import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
@@ -9,6 +9,7 @@ import { MapContext, PopinContext, PopinDescription } from "@/model/context";
 import Popin from "./popin";
 import CreateMenu from "./createMenu";
 import Layer from "./layer";
+import PathForm from "./pathForm";
 
 type PropType = {
     visibleLayers: number[],
@@ -46,8 +47,10 @@ const Map: FC<PropType> = ({ visibleLayers, activeLayer }) => {
                 onNewMarker={() => setPopin({id: Date.now(), x, y, content: (
                     <MarkerMenu x={x} y={y} onMarkerCreated={onMarkerCreated} />
                 )})}
+                onNewPath={() => setPopin({id: Date.now(), x, y, content: (
+                    <PathForm layer={getLayer(map, activeLayer)!} onSubmit={onPathCreated} />
+                )})}
                 onNewArea={() => {}}
-                onNewPath={() => {}}
             />
         )})
     }
@@ -59,6 +62,16 @@ const Map: FC<PropType> = ({ visibleLayers, activeLayer }) => {
 
         layer.markers.push(marker)
         setMap(newMap)
+        setPopin(null)
+    }
+
+    function onPathCreated(path: PathModel) {
+        const newMap: MapModel = JSON.parse(JSON.stringify(map))
+        const layer = getLayer(newMap, activeLayer)
+        if (!layer) return
+
+        layer.paths.push(path)
+        setMap(map)
         setPopin(null)
     }
 

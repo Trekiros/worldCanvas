@@ -15,6 +15,12 @@ type PropType = {
     setActiveLayer: (newValue: number) => void,
 }
 
+function transparency(hex: string) {
+    if (hex.length === 4) return `${hex}2`
+    if (hex.length === 7) return `${hex}33`
+    return hex
+}
+
 const Sidebar: FC<PropType> = ({ activeLayer, setActiveLayer }) => {
     const {map, setMap} = useContext(MapContext)
     const [visible, setVisible] = useState(true)
@@ -179,7 +185,7 @@ const Sidebar: FC<PropType> = ({ activeLayer, setActiveLayer }) => {
                             <div 
                                 className={`${styles.layerContainer} ${(activeLayer === layer.id) ? styles.active : ''}`} 
                                 key={layer.id} 
-                                style={{backgroundColor: layer.color}} 
+                                style={{backgroundColor: transparency(layer.color)}} 
                              >
                                 <div className={styles.layer}>
                                     <div className={styles.dragHandle}>

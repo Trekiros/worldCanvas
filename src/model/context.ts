@@ -11,7 +11,7 @@ export const defaultMap: MapModel = {
         name: "Towns",
         visible: true,
         iconUrl: "/icons/house.svg",
-        color: '#fff1',
+        color: '#fff',
         markers: [
             {
                 id: 0,
@@ -20,7 +20,20 @@ export const defaultMap: MapModel = {
                 x: 50, y: 40,
             },
         ],
-        paths: [],
+        paths: [
+          {
+            id: 665481,
+            name: 'The Sword Coast',
+            description: 'It is the remembered realms part of the forgotten realms.',
+            points: [
+              {x: 20, y: 20},
+              {x: 40, y: 40},
+              {x: 20, y: 60},
+            ],
+            strokeWidth: 2,
+            strokeType: 'dotted',
+          }
+        ],
         areas: [],
       },
       {
@@ -28,7 +41,7 @@ export const defaultMap: MapModel = {
         name: "Cities",
         visible: true,
         iconUrl: "/icons/house.svg",
-        color: '#fff1',
+        color: '#fff',
         markers: [
             {
                 id: 0,

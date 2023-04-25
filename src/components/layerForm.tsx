@@ -16,7 +16,7 @@ type PropType = {
 const defaultValue: LayerModel = {
     id: Date.now(),
     name: '',
-    color: '#fff3',
+    color: '#fff',
     iconUrl: '/icons/house.svg',
     markers: [],
     paths: [],
@@ -109,7 +109,10 @@ const LayerForm: FC<PropType> = ({ onSubmit, onDelete, initialValue}) => {
 
             <div className={styles.colorPicker}>
                 <label>Default path/area color: <span className={styles.color} style={{backgroundColor: removeAlpha(layer.color) }} /></label>
-                <SliderPicker color={layer.color} onChange={(newValue) => update(clone => { clone.color = `${newValue.hex}33` })} />
+                <SliderPicker 
+                    color={layer.color} 
+                    onChange={(newValue) => update(clone => { clone.color = newValue.hex })}
+                />
             </div>
 
             <div className={styles.buttons}>

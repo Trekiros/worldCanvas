@@ -21,7 +21,10 @@ const Marker = z.object({
 
 const Path = z.object({
     id: z.number(),
-    name: z.string(),
+    name: z.string().max(128),
+    description: z.string(),
+    strokeWidth: z.number().min(1).max(10),
+    strokeType: z.enum(['solid', 'dashed', 'dotted']),
     points: z.array(Point),
     color: Color.optional(), // Default: layer.color
 })

@@ -1,8 +1,9 @@
-import { LayerModel, MapModel, MarkerModel, getMarker } from "@/model/map"
+import { LayerModel, MapModel, MarkerModel, PathModel, getMarker } from "@/model/map"
 import { FC, useContext, useEffect, useState } from "react"
 import Marker from "./marker"
 import styles from './layer.module.scss'
 import { PopinContext } from "@/model/context"
+import Path from "./path"
 
 type PropType = {
     layer: LayerModel,
@@ -35,6 +36,21 @@ const Layer: FC<PropType> = ({ layer, currentZoom, onUpdate }) => {
 
         onUpdate(layerClone)
         setPopin(null)
+    }
+
+    function onPathUpdated(newValue: PathModel) {
+        const layerClone: LayerModel = JSON.parse(JSON.stringify(layer))
+
+        const path = layerClone.paths.find(p => (p.id === newValue.id))
+        if (!path) return
+
+        path.name = newValue.name
+        path.color = newValue.color
+        path.strokeType = newValue.strokeType
+        path.strokeWidth = newValue.strokeWidth
+        path.points = newValue.points
+
+        onUpdate(layerClone)
     }
 
     function onMarkerMoved(markerId: number, clientX: number, clientY: number) {        
@@ -92,7 +108,14 @@ const Layer: FC<PropType> = ({ layer, currentZoom, onUpdate }) => {
             )) }
 
             { /* PATHS */}
-            { /* TODO */}
+            { layer.paths.map((path) => (
+                <Path
+                    key={path.id}
+                    layer={layer}
+                    path={path}
+                    onUpdate={onPathUpdated}
+                />
+            )) }
                         
             { /* AREAS */}
             { /* TODO */}
