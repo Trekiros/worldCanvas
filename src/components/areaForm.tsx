@@ -41,10 +41,10 @@ const AreaForm: FC<PropType> = (({ onSubmit, initialValue, onDelete }) => {
 
     return (
         <div className={styles.areaForm}>
-            <input type="text" className={styles.name} value={area.name} onChange={e => update(a => { a.name = e.target.value })} />
+            <input type="text" className={styles.name} value={area.name} onChange={e => update(a => { a.name = e.target.value })} placeholder="Area Name" />
 
             <label>Description</label>
-            <textarea value={area.description} onChange={e => update(a => { a.description = e.target.value })} />
+            <textarea value={area.description} onChange={e => update(a => { a.description = e.target.value })} placeholder="This area is very..." />
 
             <label>Color</label>
             <ColorPicker value={area.color} onChange={c => update(a => { a.color = c })} />

@@ -10,9 +10,10 @@ type PropType = {
     layer: LayerModel,
     path: PathModel,
     onUpdate: (newValue: PathModel) => void,
+    onDelete: () => void,
 }
 
-const Path:FC<PropType> = ({ layer, path, onUpdate }) => {
+const Path:FC<PropType> = ({ layer, path, onUpdate, onDelete }) => {
     const {popin, setPopin} = useContext(PopinContext)
     const [points, setPoints] = useState(path.points)
     const [editing, setEditing] = useState(false)
@@ -88,7 +89,6 @@ const Path:FC<PropType> = ({ layer, path, onUpdate }) => {
     function onOverlayClick(e: ReactMouseEvent) {
         if (dragging === null) {
             setEditing(false)
-            setPopin(null)
             return
         }
 
@@ -177,14 +177,27 @@ const Path:FC<PropType> = ({ layer, path, onUpdate }) => {
     }
 
     function editPath(x: number, y: number) {
+        setEditing(false)
+
         setPopin({
             id: Date.now(),
             x, y,
             yOffset: true,
             content: (
-                <PathForm layer={layer} initialValue={path} onSubmit={onUpdate} />
+                <PathForm initialValue={path} onSubmit={onPathUpdated} onDelete={onPathDeleted} />
             )
         })
+    }
+
+    function onPathUpdated(newValue: PathModel) {
+        setPopin(null)
+        setEditing(false)
+        onUpdate(newValue)
+    }
+
+    function onPathDeleted() {
+        setPopin(null)
+        onDelete()
     }
 
     function addPoint(x: number, y: number) {

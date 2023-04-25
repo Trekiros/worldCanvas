@@ -54,6 +54,15 @@ const Layer: FC<PropType> = ({ layer, currentZoom, onUpdate }) => {
         onUpdate(layerClone)
     }
 
+    function onPathDeleted(pathIndex: number) {
+        if (pathIndex < 0) return
+        if (pathIndex >= layer.paths.length) return
+
+        const layerClone: LayerModel = JSON.parse(JSON.stringify(layer))
+        layerClone.paths.splice(pathIndex, 1)
+        onUpdate(layerClone)
+    }
+
     function onAreaUpdated(newValue: AreaModel) {
         const layerClone: LayerModel = JSON.parse(JSON.stringify(layer))
 
@@ -132,12 +141,13 @@ const Layer: FC<PropType> = ({ layer, currentZoom, onUpdate }) => {
             )) }
 
             { /* PATHS */}
-            { layer.paths.map((path) => (
+            { layer.paths.map((path, index) => (
                 <Path
                     key={path.id}
                     layer={layer}
                     path={path}
                     onUpdate={onPathUpdated}
+                    onDelete={() => onPathDeleted(index)}
                 />
             )) }
                         
