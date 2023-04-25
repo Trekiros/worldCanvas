@@ -52,7 +52,7 @@ const Map: FC<PropType> = ({ visibleLayers, activeLayer }) => {
                     <PathForm layer={getLayer(map, activeLayer)!} onSubmit={onPathCreated} />
                 )})}
                 onNewArea={() => setPopin({id: Date.now(), x, y, content: (
-                    <AreaForm layer={getLayer(map, activeLayer)!} onSubmit={onAreaCreated} />
+                    <AreaForm onSubmit={(area) => onAreaCreated(area, x, y)} />
                 )})}
             />
         )})
@@ -78,13 +78,20 @@ const Map: FC<PropType> = ({ visibleLayers, activeLayer }) => {
         setPopin(null)
     }
 
-    function onAreaCreated(area: AreaModel) {
+    function onAreaCreated(area: AreaModel, x: number, y: number) {
         const newMap: MapModel = JSON.parse(JSON.stringify(map))
         const layer = getLayer(newMap, activeLayer)
         if (!layer) return
 
+        area.points.push(
+            { x: x-1,   y: y+1 },
+            { x: x+1,   y: y+1 },
+            { x: x+1,   y: y-1 },
+            { x: x-1,   y: y-1 },
+        )
+
         layer.areas.push(area)
-        setMap(map)
+        setMap(newMap)
         setPopin(null)
     }
 

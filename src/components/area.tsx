@@ -11,9 +11,10 @@ type PropType = {
     layer: LayerModel,
     area: AreaModel,
     onUpdate: (newValue: AreaModel) => void,
+    onDelete: () => void,
 }
 
-const Area:FC<PropType> = ({ layer, area, onUpdate }) => {
+const Area:FC<PropType> = ({ layer, area, onUpdate, onDelete }) => {
     const {popin, setPopin} = useContext(PopinContext)
     const [points, setPoints] = useState(area.points)
     const [editing, setEditing] = useState(false)
@@ -90,7 +91,6 @@ const Area:FC<PropType> = ({ layer, area, onUpdate }) => {
     function onOverlayClick(e: ReactMouseEvent) {
         if (dragging === null) {
             setEditing(false)
-            setPopin(null)
             return
         }
 
@@ -151,14 +151,15 @@ const Area:FC<PropType> = ({ layer, area, onUpdate }) => {
         })
     }
     
-    function onPathHover(e: ReactMouseEvent) {
+    function onNameHover(e: ReactMouseEvent) {
         if (editing) return
         if (popin) return
         
         const {x, y} = calculateMapCoords(e.clientX, e.clientY)
         setPopin({
             id: area.id,
-            x, y,
+            x: center.x,
+            y: center.y,
             content: (
                 <div className={styles.areaInfo}>
                     <h3>{area.name}</h3>
@@ -169,7 +170,7 @@ const Area:FC<PropType> = ({ layer, area, onUpdate }) => {
         })
     }
 
-    function onPathHoverEnd() {
+    function onNameHoverEnd() {
         if (editing) return
         if (!popin) return
         if (popin.id !== area.id) return
@@ -177,41 +178,58 @@ const Area:FC<PropType> = ({ layer, area, onUpdate }) => {
         setPopin(null)
     }
 
-    function onPolygonHover() {
-        setHovering(true)
+    function onNameClick() {
+        console.log("wat")
+        setPopin({
+            id: Date.now(),
+            x: center.x,
+            y: center.y,
+            yOffset: true,
+            content: (
+                <AreaForm initialValue={area} onSubmit={onUpdate} onDelete={() => { setPopin(null); onDelete() }} />
+            )
+        })
+    }
 
-        function handleMouse(e: MouseEvent) {
+    function handleMouse(e: MouseEvent) {
+        try {
             const {x, y} = calculateMapCoords(e.clientX, e.clientY)
-
+    
             // Algorithm: 
             const isInside = (points.map((point, index) => [point, points[(index+1) % points.length]] as const) // get all segments
                 .filter(([p1, p2]) => { // Draw a line from the mouse which goes to the right. Filter segments which intersect with this line
                     // If the mouse isn't vertically within the segment, return early
                     const yIntersects = (Math.min(p1.y, p2.y) <= y) && (Math.max(p1.y, p2.y) >= y)
                     if (!yIntersects) return false
-
+    
                     // special case where x1 === x2, which would cause math errors in the formulas below
                     if (p1.x === p2.x) {
                         return (p1.x >= x)
                     }
-
+    
                     // calculating the segment's formula: y = ax + b
                     const a = (p2.y - p1.y)/(p2.x - p1.x)
                     const b = p1.y - a * p1.x
-
+    
                     // find the x projection of the mouse onto the segment
                     const intersectionX = (y - b)/a
-
+    
                     // Only counts intersections to the right of the mouse
                     return intersectionX > x
                 })
                 .length %2) === 1 // If the number of intersections is odd, the point is inside the polygon. Otherwise, it's outside.
-
+    
             if (isInside) return
             
             setHovering(false)
             window.removeEventListener('mousemove', handleMouse)
+        } catch (e) {
+            window.removeEventListener('mousemove', handleMouse)
         }
+    }
+    function onPolygonHover() {
+        setHovering(true)
+
 
         window.addEventListener('mousemove', handleMouse)
     }
@@ -222,9 +240,15 @@ const Area:FC<PropType> = ({ layer, area, onUpdate }) => {
             x, y,
             yOffset: true,
             content: (
-                <AreaForm layer={layer} initialValue={area} onSubmit={onUpdate} />
+                <AreaForm initialValue={area} onSubmit={onUpdate} onDelete={deleteArea} />
             )
         })
+    }
+
+    function deleteArea() {
+        setPopin(null)
+        window.removeEventListener('mousemove', handleMouse)
+        onDelete()
     }
 
     function addPoint(x: number, y: number) {
@@ -281,8 +305,6 @@ const Area:FC<PropType> = ({ layer, area, onUpdate }) => {
                                 fill={'none'}
                                 strokeWidth={0.2}
                                 onClick={onPathClick}
-                                onMouseEnter={onPathHover}
-                                onMouseLeave={onPathHoverEnd}
                             />
                         </>
                     )}
@@ -299,7 +321,12 @@ const Area:FC<PropType> = ({ layer, area, onUpdate }) => {
             ))}
             <div className={styles.areaName} style={{left: `${center.x}%`, top: `${center.y}%`}}>
                 <KeepScale>
-                    <div className={styles.name}>
+                    <div 
+                        className={styles.name}
+                        onMouseEnter={onNameHover}
+                        onMouseLeave={onNameHoverEnd}
+                        onMouseDown={onNameClick}
+                    >
                         {area.name}
                     </div>
                 </KeepScale>

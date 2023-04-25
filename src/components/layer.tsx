@@ -68,6 +68,15 @@ const Layer: FC<PropType> = ({ layer, currentZoom, onUpdate }) => {
         onUpdate(layerClone)
     }
 
+    function onAreaDeleted(areaIndex: number) {
+        if (areaIndex < 0) return
+        if (areaIndex >= layer.areas.length) return
+
+        const layerClone: LayerModel = JSON.parse(JSON.stringify(layer))
+        layerClone.areas.splice(areaIndex, 1)
+        onUpdate(layerClone)
+    }
+
     function onMarkerMoved(markerId: number, clientX: number, clientY: number) {        
         const {x, y} = calculateMapCoords(clientX, clientY)
         if (!x || !y) return
@@ -133,12 +142,13 @@ const Layer: FC<PropType> = ({ layer, currentZoom, onUpdate }) => {
             )) }
                         
             { /* AREAS */}
-            { layer.areas.map((area) => (
+            { layer.areas.map((area, index) => (
                 <Area
                     key={area.id}
                     layer={layer}
                     area={area}
                     onUpdate={onAreaUpdated}
+                    onDelete={() => onAreaDeleted(index)}
                 />
             )) }
         </div>

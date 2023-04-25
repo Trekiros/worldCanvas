@@ -33,7 +33,7 @@
 
     .areaName {
         display: none;
-        pointer-events: none;
+        pointer-events: painted;
         position: absolute;
         transform: translate(-50%, -50%);
 
