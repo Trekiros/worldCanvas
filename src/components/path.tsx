@@ -5,6 +5,7 @@ import { PopinContext } from "@/model/context"
 import PathForm from "./pathForm"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faCog, faPlus, faTrash } from "@fortawesome/free-solid-svg-icons"
+import { useCalculatedProp } from "@/model/state"
 
 type PropType = {
     layer: LayerModel,
@@ -25,9 +26,10 @@ const Path:FC<PropType> = ({ layer, path, onUpdate, onDelete }) => {
     }, [path])
 
     // This is to account for the map's aspect ratio
-    const scaleX = !ref.current ? 1 : (
-        ref.current.clientWidth / ref.current.clientHeight
-    )
+    const scaleX = useCalculatedProp([ref, ref.current], () => {
+        if (!ref.current) return 1
+        return ref.current.clientWidth / ref.current.clientHeight
+    })
     const toCoords = (x: number, y: number) => {
         return `${x * scaleX} ${y}`
     }

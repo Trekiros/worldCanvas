@@ -14,7 +14,6 @@ import AreaForm from "./areaForm";
 import { useFrame } from "@/model/state";
 
 type PropType = {
-    visibleLayers: number[],
     activeLayer: number,
 }
 
@@ -22,7 +21,7 @@ function isImageUrl(url: string) {
     return(url.match(/\.(jpeg|jpg|gif|png)$/) != null);
 }
 
-const Map: FC<PropType> = ({ visibleLayers, activeLayer }) => {
+const Map: FC<PropType> = ({ activeLayer }) => {
     const {map, setMap} = useContext(MapContext)
     const [popin, setPopin] = useState<PopinDescription>(null)
     const [zoom, setZoom] = useState(100)

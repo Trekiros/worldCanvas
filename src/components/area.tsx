@@ -5,6 +5,8 @@ import { PopinContext } from "@/model/context"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faCog, faPlus, faTrash } from "@fortawesome/free-solid-svg-icons"
 import AreaForm from "./areaForm"
+import { ReactMarkdown } from "react-markdown/lib/react-markdown"
+import { useCalculatedProp } from "@/model/state"
 
 type PropType = {
     layer: LayerModel,
@@ -26,9 +28,10 @@ const Area:FC<PropType> = ({ layer, area, onUpdate, onDelete }) => {
     }, [area])
 
     // This is to account for the map's aspect ratio
-    const scaleX = !ref.current ? 1 : (
-        ref.current.clientWidth / ref.current.clientHeight
-    )
+    const scaleX = useCalculatedProp([ref, ref.current], () => {
+        if (!ref.current) return 1
+        return ref.current.clientWidth / ref.current.clientHeight
+    })
     const toCoords = (x: number, y: number) => {
         return `${x * scaleX} ${y}`
     }
@@ -162,7 +165,9 @@ const Area:FC<PropType> = ({ layer, area, onUpdate, onDelete }) => {
             content: (
                 <div className={styles.areaInfo}>
                     <h3>{area.name}</h3>
-                    <div className={styles.description}>{area.description}</div>
+                    <div className={styles.description}>
+                        <ReactMarkdown children={area.description} />
+                    </div>
                 </div>
             ),
             yOffset: true,
@@ -185,7 +190,11 @@ const Area:FC<PropType> = ({ layer, area, onUpdate, onDelete }) => {
             y: center.y,
             yOffset: true,
             content: (
-                <AreaForm initialValue={area} onSubmit={onUpdate} onDelete={() => { setPopin(null); onDelete() }} />
+                <AreaForm 
+                    initialValue={area} 
+                    onSubmit={(newValue) => { setPopin(null); onUpdate(newValue) }} 
+                    onDelete={() => { setPopin(null); onDelete() }}
+                />
             )
         })
     }

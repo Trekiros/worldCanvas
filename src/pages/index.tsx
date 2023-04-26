@@ -6,9 +6,8 @@ import Sidebar from '@/components/sidebar'
 import Logo from '@/components/logo'
 import Map from '@/components/map'
 
-import { MapModel } from '@/model/map'
-import { usePersistentState } from '@/model/state'
-import { MapContext, defaultMap } from '@/model/context'
+import { MapContext } from '@/model/context'
+import defaultMap from '@/model/defaultMap'
 
 export default function Home() {
   const [map, setMap] = useState(defaultMap)

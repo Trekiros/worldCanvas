@@ -14,8 +14,17 @@ type PropType = {
     onMarkerDeleted?: () => void,
 }
 
+function defaultMarker(x: number, y: number): MarkerModel {
+    return {
+        id: Date.now(),
+        x, y,
+        name: '',
+        description: '',
+    }
+}
+
 const MarkerMenu: FC<PropType> = ({x, y, onMarkerCreated, initialValue, onMoveMarker, onMarkerDeleted}) => {
-    const [marker, setMarker] = useState<MarkerModel>(initialValue || {x, y} as any)
+    const [marker, setMarker] = useState<MarkerModel>(initialValue || defaultMarker(x, y))
 
     function update(mutate: (clone: MarkerModel) => void) {
         const clone: MarkerModel = JSON.parse(JSON.stringify(marker))

@@ -19,7 +19,7 @@ export function usePersistentState<T>(key: string, defaultState: T) {
     }] as const
 }
 
-export function useCalculatedProp<T>(dependencies: DependencyList, calculateProp: () => T|undefined) {
+export function useCalculatedProp<T>(dependencies: DependencyList, calculateProp: () => T) {
     const [state, setState] = useState(calculateProp())
     useEffect(() => {
         setState(calculateProp())

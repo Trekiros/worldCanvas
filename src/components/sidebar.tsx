@@ -70,7 +70,7 @@ const Sidebar: FC<PropType> = ({ activeLayer, setActiveLayer }) => {
     function onLayerdeleted(layer: LayerModel) {
         const mapClone: MapModel = JSON.parse(JSON.stringify(map))
         
-        const layerIndex = mapClone.layers.findIndex(layer => (layer.id === layer.id))
+        const layerIndex = mapClone.layers.findIndex(l => (l.id === layer.id))
         if (layerIndex === -1) return
 
         mapClone.layers.splice(layerIndex, 1)
