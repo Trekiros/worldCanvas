@@ -166,7 +166,9 @@ const Area:FC<PropType> = ({ layer, area, onUpdate, onDelete }) => {
                 <div className={styles.areaInfo}>
                     <h3>{area.name}</h3>
                     <div className={styles.description}>
-                        <ReactMarkdown children={area.description} />
+                        <ReactMarkdown>
+                            {area.description}
+                        </ReactMarkdown>
                     </div>
                 </div>
             ),
