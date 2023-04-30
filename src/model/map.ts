@@ -1,10 +1,7 @@
 import { z } from "zod";
 
-const Color = z.string().min(4).max(9).startsWith('#')
-const URL = z.string().max(256).endsWith('.png')
-    .or(z.string().max(256).endsWith('.jpg'))
-    .or(z.string().max(256).endsWith('svg'))
-    .or(z.string().max(256).endsWith('.webp'))
+const Color = z.string()
+const URL = z.string()
 const Point = z.object({
     x: z.number(),
     y: z.number(),
@@ -16,14 +13,14 @@ const Marker = z.object({
     description: z.string(),
     x: z.number(), 
     y: z.number(),
-    iconUrl: z.string().url().optional(), // Default: layer.iconUrl
+    iconUrl: URL.optional(), // Default: layer.iconUrl
 })
 
 const Path = z.object({
     id: z.number(),
-    name: z.string().max(128),
+    name: z.string(),
     description: z.string(),
-    strokeWidth: z.number().min(1).max(10),
+    strokeWidth: z.number(),
     strokeType: z.enum(['solid', 'dashed', 'dotted']),
     points: z.array(Point),
     color: Color.optional(), // Default: layer.color
@@ -31,7 +28,7 @@ const Path = z.object({
 
 const Area = z.object({
     id: z.number(),
-    name: z.string().max(128),
+    name: z.string(),
     description: z.string(),
     points: z.array(Point),
     color: Color.optional(), // Default: layer.color
@@ -39,7 +36,7 @@ const Area = z.object({
 
 const Layer = z.object({
     id: z.number(),
-    name: z.string().max(128),
+    name: z.string(),
 
     // Properties
     imageUrl: URL.optional(), // Does the layer include a map variant?
@@ -63,7 +60,7 @@ const Layer = z.object({
 
 const Map = z.object({
     id: z.number(),
-    name: z.string().max(128),
+    name: z.string(),
     imageUrl: URL,
     layers: z.array(Layer),
 })
