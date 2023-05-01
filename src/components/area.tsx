@@ -266,9 +266,16 @@ const Area:FC<PropType> = ({ layer, area, onUpdate, onDelete }) => {
 
         const insertIndex = points.map((point, index) => [point, points[(index + 1) % points.length]] as const) // All points except the last one
             .map(([p1, p2], index) => { // Find distance from each segment of the path
-                // src: https://en.wikipedia.org/wiki/Distance_from_a_point_to_a_line
-                const distance = Math.abs((p2.x - p1.x) * (p1.y - y) - (p1.x - x) * (p2.y - p1.y))
-                    / Math.sqrt(Math.pow(p2.x - p1.x, 2) + Math.pow(p2.y - p1.y, 2))
+                const segmentLength = Math.sqrt(Math.pow(p2.x - p1.x, 2) + Math.pow(p2.y - p1.y, 2))
+                const distanceP1 = Math.sqrt(Math.pow(x - p1.x, 2) + Math.pow(y - p1.y, 2))
+                const distanceP2 = Math.sqrt(Math.pow(x - p2.x, 2) + Math.pow(y - p2.y, 2))
+                const distanceLine = Math.abs((p2.x - p1.x) * (p1.y - y) - (p1.x - x) * (p2.y - p1.y))
+                  / Math.sqrt(Math.pow(p2.x - p1.x, 2) + Math.pow(p2.y - p1.y, 2))
+          
+                const distance = (distanceP1 > segmentLength) ? distanceP2
+                  : (distanceP2 > segmentLength) ? distanceP1
+                  : distanceLine
+          
 
                 return {index, distance}
             })
