@@ -275,7 +275,6 @@ const Area:FC<PropType> = ({ layer, area, onUpdate, onDelete }) => {
                 const distance = (distanceP1 > segmentLength) ? distanceP2
                   : (distanceP2 > segmentLength) ? distanceP1
                   : distanceLine
-          
 
                 return {index, distance}
             })

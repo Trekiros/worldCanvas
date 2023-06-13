@@ -134,7 +134,7 @@ const Map: FC<PropType> = ({ activeLayer }) => {
             <div className={styles.mapContainer} id='map'>
                 <TransformWrapper centerOnInit={true} minScale={0.2} doubleClick={{disabled: true}} onZoomStop={(e) => onZoom(e.state.scale)}>
                     <TransformComponent>
-                        {!isImageUrl(map.imageUrl) ? (
+                        {!map.imageUrl.trim() ? (
                             <div className={styles.default}>Import a map</div>
                         ) : (
                             <div ref={mapRef}>

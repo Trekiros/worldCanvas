@@ -62,6 +62,7 @@ const MapForm: FC<PropType> = ({ onSubmit, initialValue }) => {
             <input
                 id='imageURL'
                 type='text'
+                placeholder="http://..."
                 className={styles.imageUrl}
                 value={map.imageUrl}
                 onChange={e => update(m => { m.imageUrl = e.target.value })}
